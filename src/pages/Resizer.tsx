@@ -2084,7 +2084,7 @@ export default function Resizer() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
     </div>
   );
 }
