@@ -1432,7 +1432,7 @@ export default function App() {
         </div>
 
       {/* Comprehensive Footer */}
-      <footer id="contact" className="bg-slate-900 border-t border-slate-800 pt-16 pb-8 px-4 md:px-8 shrink-0 relative z-20">
+      <footer id="contact-section" className="bg-slate-900 border-t border-slate-800 pt-16 pb-8 px-4 md:px-8 shrink-0 relative z-20">
         <div className="max-w-7xl mx-auto w-full">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12 mb-12 border-b border-slate-800 pb-12">
             <div className="md:col-span-2">
