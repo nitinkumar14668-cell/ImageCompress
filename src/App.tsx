@@ -1480,11 +1480,11 @@ export default function App() {
               <address className="not-italic text-slate-400 text-sm space-y-3">
                 <p className="flex items-center gap-2">
                   <span className="font-bold text-slate-300 min-w-[60px]">Email:</span>
-                  <a href="mailto:support@imageresizer.com" className="hover:text-white transition-colors truncate block">support@imageresizer.com</a>
+                  <a href="mailto:nitinkumar14668@gmail.com" className="hover:text-white transition-colors truncate block">nitinkumar14668@gmail.com</a>
                 </p>
                 <p className="flex items-center gap-2">
                   <span className="font-bold text-slate-300 min-w-[60px]">Phone:</span>
-                  <a href="tel:+18001234567" className="hover:text-white transition-colors block">+1 (800) 123-4567</a>
+                  <a href="tel:9458049121" className="hover:text-white transition-colors block">9458049121</a>
                 </p>
                 <p className="flex items-center gap-2">
                   <span className="font-bold text-slate-300 min-w-[60px]">Social:</span>
