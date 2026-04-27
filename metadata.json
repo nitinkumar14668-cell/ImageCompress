@@ -1,0 +1,6 @@
+{
+  "name": "Image Resizer & Compressor",
+  "description": "A client-side tool to resize and compress images locally in your browser.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
