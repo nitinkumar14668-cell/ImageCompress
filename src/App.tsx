@@ -776,6 +776,12 @@ export default function App() {
             >
               About Us
             </a>
+            <a
+              href="#contact-section"
+              className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors"
+            >
+              Contact
+            </a>
           </nav>
 
           {images.length > 0 && (
@@ -1993,6 +1999,131 @@ export default function App() {
                   step-by-step guide
                 </a>{" "}
                 above.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="seo-content-section"
+          className="py-20 md:py-24 px-4 md:px-8 bg-white border-t border-slate-200"
+        >
+          <div className="max-w-4xl mx-auto w-full text-slate-700 text-lg space-y-12 leading-relaxed">
+            <div>
+              <h3
+                id="understanding-formats"
+                className="text-2xl md:text-3xl font-bold text-slate-900 mb-6 tracking-tight"
+              >
+                Understanding Image Formats for Web Optimization
+              </h3>
+              <p className="mb-4">
+                Selecting the right file format is crucial for{" "}
+                <a
+                  href="#seo-benefits"
+                  className="text-blue-600 hover:underline"
+                >
+                  web performance and technical SEO
+                </a>
+                . Every kilobyte matters when optimizing a webpage for both
+                desktop and mobile users experiencing unpredictable cellular
+                networks. Here's a brief breakdown of common formats:
+              </p>
+              <ul className="list-disc pl-6 space-y-3 mb-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <li>
+                  <strong className="text-slate-900">JPEG (or JPG)</strong> is
+                  ideal for complex photographs containing millions of colors.
+                  It offers a fantastic balance between acceptable visual
+                  quality and remarkably small file sizes through its lossy
+                  compression algorithm, making it the standard for most website
+                  photography.
+                </li>
+                <li>
+                  <strong className="text-slate-900">PNG</strong> is perfect for
+                  graphics, logos, illustrations, and images requiring a
+                  transparent background. Because it uses lossless compression,
+                  it preserves sharp lines perfectly but typically results in
+                  much larger files. We recommend resizing these carefully.
+                </li>
+                <li>
+                  <strong className="text-slate-900">WebP</strong> is a modern,
+                  next-generation image format developed by Google that provides
+                  superior lossless and lossy compression for images on the web.
+                  Serving WebP images can make your sites load up to 30% faster
+                  compared to traditional JPEGs or PNGs, giving you a
+                  competitive edge.
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3
+                id="seo-benefits"
+                className="text-2xl md:text-3xl font-bold text-slate-900 mb-4 tracking-tight"
+              >
+                Why Image Compression Matters Massively for Technical SEO
+              </h3>
+              <p className="mb-4">
+                Search engines like Google heavily prioritize fast-loading
+                websites to ensure the absolute best user experience possible.
+                By consistently compressing your images with our{" "}
+                <a
+                  href="#how-it-works"
+                  className="text-blue-600 hover:underline"
+                >
+                  free online tool
+                </a>
+                , you effectively reduce your web page's overall data payload,
+                which dramatically improves initial loading times, Time to First
+                Byte (TTFB), and your crucial Core Web Vitals score.
+              </p>
+              <p className="mb-4">
+                Smaller, web-optimized images directly lead to lower visitor
+                bounce rates, higher user engagement metrics, increased
+                time-on-page, and ultimately, significantly better rankings in
+                highly competitive search engine results pages (SERPs). Making
+                absolutely sure you have correctly compressed visual assets is
+                always the critically important first step in any comprehensive
+                technical SEO optimization strategy.
+              </p>
+              <p className="mb-4">
+                Ready to massively improve your own website's page speed and
+                user experience?{" "}
+                <a
+                  href="#main-content"
+                  className="text-blue-600 hover:underline"
+                >
+                  Start optimizing your web assets
+                </a>{" "}
+                today with our highly reliable, completely free client-side
+                application. Don't forget that consistent, ongoing image
+                optimization is the vital key to maintaining long-term website
+                health and sustained organic traffic growth.
+              </p>
+            </div>
+
+            <div>
+              <h3
+                id="professional-workflows"
+                className="text-2xl md:text-3xl font-bold text-slate-900 mb-4 tracking-tight"
+              >
+                Utilizing Advanced Features for Professional Workflows
+              </h3>
+              <p className="mb-4">
+                If you are a web developer, graphic designer, or digital
+                marketer, our platform offers advanced features designed to
+                streamline your daily asset preparation workflow. You do not
+                need to rely on heavy, expensive desktop software like Adobe
+                Photoshop just to perform simple bounding-box resizing or format
+                conversions for deployment.
+              </p>
+              <p>
+                Our responsive, browser-based tool allows you to perfectly
+                adjust images while preserving critical aspect ratios, ensuring
+                your photography never appears stretched or distorted on the
+                final webpage. The intuitive compression slider operates in
+                real-time, providing immediate visual feedback so you can
+                visually verify the exact moment compression artifacts become
+                noticeable.
               </p>
             </div>
           </div>
