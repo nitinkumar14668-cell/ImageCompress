@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, ChangeEvent, DragEvent } from 'react';
-import { UploadCloud, Image as ImageIcon, Download, Settings2, RefreshCw, X, Layers } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, Download, Settings2, RefreshCw, X, Layers, Undo2, Redo2 } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
@@ -35,6 +35,9 @@ export default function App() {
   const [format, setFormat] = useState<FileFormat | 'original'>('original');
   const [quality, setQuality] = useState<number>(0.8);
   
+  const [pastSettings, setPastSettings] = useState<any[]>([]);
+  const [futureSettings, setFutureSettings] = useState<any[]>([]);
+
   const [isProcessingLocal, setIsProcessingLocal] = useState<boolean>(false);
   const [isBatchProcessing, setIsBatchProcessing] = useState<boolean>(false);
   const [batchProgress, setBatchProgress] = useState<number>(0);
@@ -42,6 +45,55 @@ export default function App() {
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
   const activeImage = images.find(img => img.id === activeId) || null;
+
+  const saveSettingsHistory = () => {
+    const currentState = { targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio };
+    setPastSettings(p => {
+      if (p.length > 0) {
+        const last = p[p.length - 1];
+        if (
+          last.targetWidth === currentState.targetWidth &&
+          last.targetHeight === currentState.targetHeight &&
+          last.scaleMode === currentState.scaleMode &&
+          last.format === currentState.format &&
+          last.quality === currentState.quality &&
+          last.keepAspectRatio === currentState.keepAspectRatio
+        ) {
+          return p;
+        }
+      }
+      return [...p, currentState];
+    });
+    setFutureSettings([]);
+  };
+
+  const undoSettings = () => {
+    if (pastSettings.length === 0) return;
+    const previous = pastSettings[pastSettings.length - 1];
+    setPastSettings(p => p.slice(0, p.length - 1));
+    setFutureSettings(f => [{ targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio }, ...f]);
+
+    setTargetWidth(previous.targetWidth);
+    setTargetHeight(previous.targetHeight);
+    setScaleMode(previous.scaleMode as any);
+    setFormat(previous.format as any);
+    setQuality(previous.quality);
+    setKeepAspectRatio(previous.keepAspectRatio);
+  };
+
+  const redoSettings = () => {
+    if (futureSettings.length === 0) return;
+    const next = futureSettings[0];
+    setFutureSettings(f => f.slice(1));
+    setPastSettings(p => [...p, { targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio }]);
+
+    setTargetWidth(next.targetWidth);
+    setTargetHeight(next.targetHeight);
+    setScaleMode(next.scaleMode as any);
+    setFormat(next.format as any);
+    setQuality(next.quality);
+    setKeepAspectRatio(next.keepAspectRatio);
+  };
 
   // Cleanup object URLs for removed images
   // We handle specific cleanup in removeImage and resetAll methods.
@@ -412,6 +464,10 @@ export default function App() {
                       <div className="text-[12px] uppercase tracking-[0.08em] text-slate-500 font-bold">
                         {images.length > 1 ? 'Global Settings' : 'Dimensions'}
                       </div>
+                      <div className="flex items-center gap-1 ml-auto mr-3 border border-slate-200 rounded-md p-0.5 shadow-sm bg-slate-50">
+                        <button onClick={undoSettings} disabled={pastSettings.length === 0} title="Undo" className="p-1 text-slate-500 hover:text-blue-600 hover:bg-white rounded disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-slate-500 transition-colors"><Undo2 className="w-3.5 h-3.5" /></button>
+                        <button onClick={redoSettings} disabled={futureSettings.length === 0} title="Redo" className="p-1 text-slate-500 hover:text-blue-600 hover:bg-white rounded disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-slate-500 transition-colors"><Redo2 className="w-3.5 h-3.5" /></button>
+                      </div>
                       {images.length > 1 && <div className="text-[10px] uppercase font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Batch Mode</div>}
                     </div>
                     {images.length > 1 && (
@@ -427,6 +483,7 @@ export default function App() {
                     <div className="grid grid-cols-1 gap-2 w-full">
                       <button
                         onClick={() => {
+                          saveSettingsHistory();
                           setTargetWidth('');
                           setTargetHeight('');
                           setScaleMode('original');
@@ -440,6 +497,7 @@ export default function App() {
                       </button>
                       <button
                         onClick={() => {
+                          saveSettingsHistory();
                           setTargetWidth('');
                           setTargetHeight('');
                           setScaleMode('original');
@@ -453,6 +511,7 @@ export default function App() {
                       </button>
                       <button
                         onClick={() => {
+                          saveSettingsHistory();
                           setTargetWidth('');
                           setTargetHeight('');
                           setScaleMode('original');
@@ -476,6 +535,7 @@ export default function App() {
                           type="number"
                           value={targetWidth}
                           placeholder={activeTargetWidth.toString()}
+                          onFocus={saveSettingsHistory}
                           onChange={(e) => handleWidthChange(e.target.value ? Number(e.target.value) : '')}
                           className="w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-[15px] font-medium text-slate-800 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 transition-colors shadow-sm"
                         />
@@ -486,6 +546,7 @@ export default function App() {
                           type="number"
                           value={targetHeight}
                           placeholder={activeTargetHeight.toString()}
+                          onFocus={saveSettingsHistory}
                           onChange={(e) => handleHeightChange(e.target.value ? Number(e.target.value) : '')}
                           className="w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-[15px] font-medium text-slate-800 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 transition-colors shadow-sm"
                         />
@@ -495,6 +556,7 @@ export default function App() {
                       <input
                         type="checkbox"
                         checked={keepAspectRatio}
+                        onPointerDown={saveSettingsHistory}
                         onChange={(e) => toggleAspectRatio(e.target.checked)}
                         className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-600 accent-blue-600 flex-shrink-0"
                       />
@@ -509,7 +571,7 @@ export default function App() {
                     <label className="block text-[13px] font-bold text-slate-700 mb-2">Target Format</label>
                     <div className="flex gap-2 w-full">
                       <button
-                        onClick={() => setFormat('original')}
+                        onClick={() => { saveSettingsHistory(); setFormat('original'); }}
                         className={`flex-1 py-2 px-1 text-[11px] font-bold rounded-md border transition-all truncate ${
                           format === 'original'
                             ? 'bg-blue-50 border-blue-600 text-blue-700 shadow-sm'
@@ -524,7 +586,7 @@ export default function App() {
                         return (
                           <button
                             key={f}
-                            onClick={() => setFormat(f)}
+                            onClick={() => { saveSettingsHistory(); setFormat(f); }}
                             className={`flex-1 py-2 px-1 text-[11px] font-bold rounded-md border transition-all truncate ${
                               isSelected
                                 ? 'bg-blue-50 border-blue-600 text-blue-700 shadow-sm'
@@ -554,6 +616,7 @@ export default function App() {
                         max="1"
                         step="0.01"
                         value={quality}
+                        onPointerDown={saveSettingsHistory}
                         onChange={(e) => setQuality(Number(e.target.value))}
                         className="w-full accent-blue-600 h-2 bg-slate-200 rounded-full appearance-none flex cursor-pointer hover:bg-slate-300 transition-colors"
                       />
