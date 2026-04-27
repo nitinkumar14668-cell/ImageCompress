@@ -1473,23 +1473,51 @@ export default function App() {
 
             <div>
               <h4 className="text-white font-bold mb-4 tracking-wide uppercase text-sm">Contact Us &amp; Social</h4>
-              <address className="not-italic text-slate-400 text-sm space-y-3">
-                <p className="flex items-center gap-2">
-                  <span className="font-bold text-slate-300 min-w-[60px]">Email:</span>
-                  <a href="mailto:nitinkumar14668@gmail.com" className="hover:text-white transition-colors truncate block">nitinkumar14668@gmail.com</a>
-                </p>
-                <p className="flex items-center gap-2">
-                  <span className="font-bold text-slate-300 min-w-[60px]">Phone:</span>
-                  <a href="tel:+919458049121" className="hover:text-white transition-colors block">+91 9458049121</a>
-                </p>
-                <p className="flex items-center gap-2">
-                  <span className="font-bold text-slate-300 min-w-[60px]">Social:</span>
-                  <a href="https://www.instagram.com/nitingaming947?igsh=enl6ZnFoMG0ydDJs" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block text-blue-400 underline decoration-blue-400/30 underline-offset-2">Instagram</a>
-                </p>
-                <p className="flex items-start gap-2 pt-1 border-t border-slate-800 mt-3">
-                  <span className="font-bold text-slate-300 min-w-[60px] pt-1">Address:</span>
-                  <span className="leading-relaxed">kachiyan, narora, bulandshahr, Uttar Pradesh</span>
-                </p>
+              <address className="not-italic text-slate-400 text-sm space-y-4">
+                <div className="flex items-center gap-3 group">
+                  <span className="flex items-center justify-center w-9 h-9 rounded-full bg-slate-800 text-slate-400 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-colors shrink-0">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                  </span>
+                  <div>
+                    <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">Email</span>
+                    <a href="mailto:nitinkumar14668@gmail.com" className="hover:text-blue-400 active:scale-[0.98] inline-block origin-left transition-all duration-200 truncate font-medium">nitinkumar14668@gmail.com</a>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3 group">
+                  <span className="flex items-center justify-center w-9 h-9 rounded-full bg-slate-800 text-slate-400 group-hover:bg-emerald-500/20 group-hover:text-emerald-400 transition-colors shrink-0">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                  </span>
+                  <div>
+                    <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">Phone</span>
+                    <a href="tel:+919458049121" className="hover:text-emerald-400 active:scale-[0.98] inline-block origin-left transition-all duration-200 font-medium">+91 9458049121</a>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 group">
+                  <span className="flex items-center justify-center w-9 h-9 rounded-full bg-slate-800 text-slate-400 group-hover:bg-purple-500/20 group-hover:text-purple-400 transition-colors shrink-0">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                  </span>
+                  <div>
+                    <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">Social</span>
+                    <a href="https://www.instagram.com/nitingaming947?igsh=enl6ZnFoMG0ydDJs" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 active:scale-[0.98] inline-flex items-center gap-1.5 origin-left transition-all duration-200 font-medium">
+                      Instagram
+                      <svg className="w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 pt-4 border-t border-slate-800 mt-2 group">
+                  <span className="flex items-center justify-center w-9 h-9 rounded-full bg-slate-800 text-slate-400 group-hover:bg-rose-500/20 group-hover:text-rose-400 transition-colors shrink-0 mt-0.5">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  </span>
+                  <div className="leading-relaxed hover:text-slate-200 transition-colors">
+                    <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">Address</span>
+                    <span className="block">kachiyan, narora</span>
+                    <span className="block">bulandshahr, Uttar Pradesh</span>
+                    <span className="block">India - 202389</span>
+                  </div>
+                </div>
               </address>
             </div>
           </div>
