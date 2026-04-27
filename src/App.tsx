@@ -44,12 +44,8 @@ export default function App() {
   const activeImage = images.find(img => img.id === activeId) || null;
 
   // Cleanup object URLs for removed images
-  useEffect(() => {
-    return () => {
-      images.forEach(img => URL.revokeObjectURL(img.url));
-      Object.values(processedImages).forEach(img => URL.revokeObjectURL(img.url));
-    };
-  }, [images, processedImages]);
+  // We handle specific cleanup in removeImage and resetAll methods.
+  // We handle active image process updates in the debounced effect.
 
   const handleFiles = (files: FileList | File[]) => {
     const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
