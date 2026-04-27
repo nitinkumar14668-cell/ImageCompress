@@ -200,7 +200,7 @@ export default function App() {
           </div>
           
           <nav className="hidden md:flex items-center gap-8 ml-8 flex-1">
-            <a href="#home" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">Home</a>
+            <a href="#main-content" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">Home</a>
             <a href="#how-it-works" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">How it Works</a>
             <a href="#features" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">Features</a>
             <a href="#about" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">About Us</a>
@@ -220,7 +220,7 @@ export default function App() {
       </header>
 
       {/* Main Tool Area */}
-      <main id="home" className="w-full pb-8 flex-none flex flex-col bg-slate-50">
+      <main id="main-content" className="w-full pb-8 flex-none flex flex-col bg-slate-50">
         {!originalImage ? (
           <div className="w-full items-center justify-center px-4 md:px-8 py-12 md:py-20 lg:py-24 relative overflow-hidden">
             <div className="absolute inset-0 bg-blue-50/50 -z-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#CBD5E1 1px, transparent 1px)', backgroundSize: '32px 32px', opacity: 0.3 }}></div>
@@ -562,7 +562,7 @@ export default function App() {
       {/* Comprehensive Footer */}
       <footer className="bg-slate-900 border-t border-slate-800 pt-16 pb-8 px-4 md:px-8 shrink-0 relative z-20">
         <div className="max-w-7xl mx-auto w-full">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-slate-800 pb-12">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12 mb-12 border-b border-slate-800 pb-12">
             <div className="md:col-span-2">
               <div className="flex items-center gap-2 mb-4">
                 <div className="text-slate-300">
@@ -599,6 +599,24 @@ export default function App() {
                 <li><a href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
                 <li><a href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Terms of Service</a></li>
               </ul>
+            </div>
+
+            <div>
+              <h4 className="text-white font-bold mb-4 tracking-wide uppercase text-sm">Contact Us</h4>
+              <address className="not-italic text-slate-400 text-sm space-y-3">
+                <p className="flex items-center gap-2">
+                  <span className="font-bold text-slate-300 min-w-[60px]">Email:</span>
+                  <a href="mailto:support@imageresizer.com" className="hover:text-white transition-colors truncate block">support@imageresizer.com</a>
+                </p>
+                <p className="flex items-center gap-2">
+                  <span className="font-bold text-slate-300 min-w-[60px]">Phone:</span>
+                  <a href="tel:+18001234567" className="hover:text-white transition-colors block">+1 (800) 123-4567</a>
+                </p>
+                <p className="flex items-start gap-2 pt-1">
+                  <span className="font-bold text-slate-300 min-w-[60px] pt-1">Address:</span>
+                  <span className="leading-relaxed">123 Optimization Way,<br />San Francisco, CA 94105</span>
+                </p>
+              </address>
             </div>
           </div>
           
