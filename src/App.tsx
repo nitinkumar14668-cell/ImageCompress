@@ -226,7 +226,7 @@ export default function App() {
       } finally {
         setIsProcessingLocal(false);
       }
-    }, 400);
+    }, 150);
 
     return () => clearTimeout(timer);
   }, [activeImage, targetWidth, targetHeight, scaleMode, format, quality]);
@@ -468,17 +468,18 @@ export default function App() {
                   </div>
 
                   {/* Quality */}
-                  {(format === 'image/jpeg' || format === 'image/webp') && (
+                  {((format === 'original' ? activeImage?.type : format) === 'image/jpeg' || 
+                    (format === 'original' ? activeImage?.type : format) === 'image/webp') && (
                     <div className="mb-2 w-full">
                       <div className="flex justify-between items-center mb-3">
-                        <label className="block text-[13px] font-bold text-slate-700">Quality</label>
+                        <label className="block text-[13px] font-bold text-slate-700">Compression Quality</label>
                         <span className="text-[14px] font-bold text-blue-700 bg-blue-50 px-2 rounded">
                           {Math.round(quality * 100)}%
                         </span>
                       </div>
                       <input
                         type="range"
-                        min="0.1"
+                        min="0.01"
                         max="1"
                         step="0.01"
                         value={quality}
@@ -486,8 +487,8 @@ export default function App() {
                         className="w-full accent-blue-600 h-2 bg-slate-200 rounded-full appearance-none flex cursor-pointer hover:bg-slate-300 transition-colors"
                       />
                       <div className="flex justify-between text-[11px] font-medium text-slate-400 mt-2">
-                        <span>Smallest File</span>
-                        <span>Best Visuals</span>
+                        <span>High Compression</span>
+                        <span>High Quality</span>
                       </div>
                     </div>
                   )}
