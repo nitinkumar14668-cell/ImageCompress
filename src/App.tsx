@@ -37,6 +37,11 @@ export default function App() {
   const [format, setFormat] = useState<FileFormat | 'original'>('original');
   const [quality, setQuality] = useState<number>(0.8);
   
+  const [grayscale, setGrayscale] = useState<boolean>(false);
+  const [sepia, setSepia] = useState<boolean>(false);
+  const [brightness, setBrightness] = useState<number>(100);
+  const [contrast, setContrast] = useState<number>(100);
+  
   const [pastSettings, setPastSettings] = useState<any[]>([]);
   const [futureSettings, setFutureSettings] = useState<any[]>([]);
 
@@ -54,7 +59,7 @@ export default function App() {
   const activeImage = images.find(img => img.id === activeId) || null;
 
   const saveSettingsHistory = () => {
-    const currentState = { targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio };
+    const currentState = { targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio, grayscale, sepia, brightness, contrast };
     setPastSettings(p => {
       if (p.length > 0) {
         const last = p[p.length - 1];
@@ -64,7 +69,11 @@ export default function App() {
           last.scaleMode === currentState.scaleMode &&
           last.format === currentState.format &&
           last.quality === currentState.quality &&
-          last.keepAspectRatio === currentState.keepAspectRatio
+          last.keepAspectRatio === currentState.keepAspectRatio &&
+          last.grayscale === currentState.grayscale &&
+          last.sepia === currentState.sepia &&
+          last.brightness === currentState.brightness &&
+          last.contrast === currentState.contrast
         ) {
           return p;
         }
@@ -78,7 +87,7 @@ export default function App() {
     if (pastSettings.length === 0) return;
     const previous = pastSettings[pastSettings.length - 1];
     setPastSettings(p => p.slice(0, p.length - 1));
-    setFutureSettings(f => [{ targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio }, ...f]);
+    setFutureSettings(f => [{ targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio, grayscale, sepia, brightness, contrast }, ...f]);
 
     setTargetWidth(previous.targetWidth);
     setTargetHeight(previous.targetHeight);
@@ -86,13 +95,17 @@ export default function App() {
     setFormat(previous.format as any);
     setQuality(previous.quality);
     setKeepAspectRatio(previous.keepAspectRatio);
+    setGrayscale(previous.grayscale);
+    setSepia(previous.sepia);
+    setBrightness(previous.brightness);
+    setContrast(previous.contrast);
   };
 
   const redoSettings = () => {
     if (futureSettings.length === 0) return;
     const next = futureSettings[0];
     setFutureSettings(f => f.slice(1));
-    setPastSettings(p => [...p, { targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio }]);
+    setPastSettings(p => [...p, { targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio, grayscale, sepia, brightness, contrast }]);
 
     setTargetWidth(next.targetWidth);
     setTargetHeight(next.targetHeight);
@@ -100,6 +113,10 @@ export default function App() {
     setFormat(next.format as any);
     setQuality(next.quality);
     setKeepAspectRatio(next.keepAspectRatio);
+    setGrayscale(next.grayscale);
+    setSepia(next.sepia);
+    setBrightness(next.brightness);
+    setContrast(next.contrast);
   };
 
   const applyCrop = () => {
@@ -552,6 +569,10 @@ export default function App() {
                           setScaleMode('original');
                           setFormat('image/webp');
                           setQuality(0.6);
+                          setGrayscale(false);
+                          setSepia(false);
+                          setBrightness(100);
+                          setContrast(100);
                         }}
                         className="flex flex-col items-start p-2.5 rounded-lg border border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50 transition-colors text-left w-full"
                       >
@@ -566,6 +587,10 @@ export default function App() {
                           setScaleMode('original');
                           setFormat('image/webp');
                           setQuality(0.85);
+                          setGrayscale(false);
+                          setSepia(false);
+                          setBrightness(100);
+                          setContrast(100);
                         }}
                         className="flex flex-col items-start p-2.5 rounded-lg border border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50 transition-colors text-left w-full"
                       >
@@ -580,6 +605,10 @@ export default function App() {
                           setScaleMode('original');
                           setFormat('image/jpeg');
                           setQuality(1.0);
+                          setGrayscale(false);
+                          setSepia(false);
+                          setBrightness(100);
+                          setContrast(100);
                         }}
                         className="flex flex-col items-start p-2.5 rounded-lg border border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50 transition-colors text-left w-full"
                       >
@@ -689,6 +718,70 @@ export default function App() {
                       </div>
                     </div>
                   )}
+
+                  {/* Effects */}
+                  <div className="mt-6 mb-2 w-full">
+                    <div className="text-[12px] uppercase tracking-[0.08em] text-slate-500 font-bold mb-3">Image Effects</div>
+                    
+                    <div className="grid grid-cols-2 gap-2 mb-4">
+                      <label className="flex items-center gap-2 cursor-pointer bg-slate-50 p-2 rounded-md border border-slate-100 hover:bg-slate-100 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={grayscale}
+                          onPointerDown={saveSettingsHistory}
+                          onChange={(e) => setGrayscale(e.target.checked)}
+                          className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-600 accent-blue-600"
+                        />
+                        <span className="text-[12px] font-semibold text-slate-700">Grayscale</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer bg-slate-50 p-2 rounded-md border border-slate-100 hover:bg-slate-100 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={sepia}
+                          onPointerDown={saveSettingsHistory}
+                          onChange={(e) => setSepia(e.target.checked)}
+                          className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-600 accent-blue-600"
+                        />
+                        <span className="text-[12px] font-semibold text-slate-700">Sepia</span>
+                      </label>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-[13px] font-bold text-slate-700">Brightness</label>
+                          <span className="text-[11px] font-medium text-slate-500">{brightness}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="200"
+                          step="1"
+                          value={brightness}
+                          onPointerDown={saveSettingsHistory}
+                          onChange={(e) => setBrightness(Number(e.target.value))}
+                          className="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-full appearance-none flex cursor-pointer hover:bg-slate-300 transition-colors"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-[13px] font-bold text-slate-700">Contrast</label>
+                          <span className="text-[11px] font-medium text-slate-500">{contrast}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="200"
+                          step="1"
+                          value={contrast}
+                          onPointerDown={saveSettingsHistory}
+                          onChange={(e) => setContrast(Number(e.target.value))}
+                          className="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-full appearance-none flex cursor-pointer hover:bg-slate-300 transition-colors"
+                        />
+                      </div>
+                    </div>
+                  </div>
                   
                   <div className="mt-8 pt-5 border-t border-slate-100 w-full mb-1">
                     <a
