@@ -15,6 +15,8 @@ interface ImageMeta {
   width: number;
   height: number;
   type: string;
+  exportName?: string;
+  exportFormat?: FileFormat | 'original';
 }
 
 interface ProcessedImage {
@@ -302,7 +304,8 @@ export default function App() {
       tWidth = Math.round(targetHeight * (img.width / img.height));
     }
 
-    const tFormat = format === 'original' ? (img.type as FileFormat) : format;
+    const tFormatCheck = img.exportFormat && img.exportFormat !== 'original' ? img.exportFormat : format;
+    const tFormat = tFormatCheck === 'original' ? (img.type as FileFormat) : tFormatCheck;
     const finalFormat = ['image/jpeg', 'image/png', 'image/webp'].includes(tFormat) ? tFormat : 'image/jpeg';
 
     return new Promise((resolve, reject) => {
@@ -395,7 +398,8 @@ export default function App() {
           
           const ext = processed.format.split('/')[1] || 'jpeg';
           // handle duplicate names
-          const baseName = img.name.replace(/\.[^/.]+$/, "");
+          const nameToUse = img.exportName || img.name;
+          const baseName = nameToUse.replace(/\.[^/.]+$/, "");
           const newName = `${baseName}-optimized.${ext}`;
           
           zip.file(newName, blob);
@@ -794,7 +798,7 @@ export default function App() {
                   <div className="mt-8 pt-5 border-t border-slate-100 w-full mb-1">
                     <a
                       href={activeProcessed?.url || '#'}
-                      download={activeImage ? `optimized-${activeImage.name.replace(/\.[^/.]+$/, "")}.${(activeProcessed?.format || format).split('/')[1]}` : 'image'}
+                      download={activeImage ? `${(activeImage.exportName || activeImage.name).replace(/\\.[^/.]+$/, "")}-optimized.${(activeProcessed?.format || format).split('/')[1]}` : 'image'}
                       className={`w-full flex items-center justify-center py-4 px-4 rounded-xl font-bold transition-all text-[15px] ${
                         activeProcessed
                           ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg'
@@ -870,7 +874,7 @@ export default function App() {
                        ) : (
                          <a
                            href={activeProcessed.url}
-                           download={activeImage ? `optimized-${activeImage.name.replace(/\.[^/.]+$/, "")}.${activeProcessed.format.split('/')[1]}` : 'image'}
+                           download={activeImage ? `${(activeImage.exportName || activeImage.name).replace(/\\.[^/.]+$/, "")}-optimized.${activeProcessed.format.split('/')[1]}` : 'image'}
                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-md text-[13px] shadow whitespace-nowrap"
                          >
                            Save
@@ -970,6 +974,38 @@ export default function App() {
                         </div>
                       )}
                     </div>
+                    {activeImage && (
+                      <div className="p-3 bg-blue-50/50 border-t border-blue-100 flex flex-col sm:flex-row gap-3 items-center">
+                        <div className="flex-1 w-full">
+                           <label className="block text-[11px] font-bold text-slate-500 mb-1 uppercase tracking-wide">Export Filename</label>
+                           <input
+                             type="text"
+                             value={activeImage.exportName !== undefined ? activeImage.exportName : activeImage.name}
+                             onChange={(e) => {
+                               const val = e.target.value;
+                               setImages(imgs => imgs.map(img => img.id === activeImage.id ? { ...img, exportName: val } : img));
+                             }}
+                             className="w-full text-[13px] px-2 py-1.5 border border-slate-300 rounded shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                           />
+                        </div>
+                        <div className="w-full sm:w-auto">
+                           <label className="block text-[11px] font-bold text-slate-500 mb-1 uppercase tracking-wide">Export Format</label>
+                           <select
+                             value={activeImage.exportFormat || 'original'}
+                             onChange={(e) => {
+                               const val = e.target.value as FileFormat | 'original';
+                               setImages(imgs => imgs.map(img => img.id === activeImage.id ? { ...img, exportFormat: val } : img));
+                             }}
+                             className="w-full sm:w-32 text-[13px] px-2 py-1.5 border border-slate-300 rounded shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white"
+                           >
+                             <option value="original">Use Global</option>
+                             <option value="image/jpeg">JPEG</option>
+                             <option value="image/png">PNG</option>
+                             <option value="image/webp">WebP</option>
+                           </select>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -988,7 +1024,7 @@ export default function App() {
                       {images.length === 1 ? (
                         <a
                           href={activeProcessed?.url}
-                          download={activeImage ? `optimized-${activeImage.name.replace(/\.[^/.]+$/, "")}.${activeProcessed?.format.split('/')[1]}` : 'image'}
+                          download={activeImage ? `${(activeImage.exportName || activeImage.name).replace(/\\.[^/.]+$/, "")}-optimized.${activeProcessed?.format.split('/')[1]}` : 'image'}
                           className={`font-bold py-3 px-8 rounded-lg shadow-md flex items-center justify-center whitespace-nowrap transition-all hover:-translate-y-0.5 ${
                             activeProcessed 
                             ? 'bg-blue-600 hover:bg-blue-700 text-white' 
