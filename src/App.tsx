@@ -47,6 +47,10 @@ export default function App() {
   const [pastSettings, setPastSettings] = useState<any[]>([]);
   const [futureSettings, setFutureSettings] = useState<any[]>([]);
 
+  const [viewMode, setViewMode] = useState<'split' | 'slider'>('split');
+  const [sliderPosition, setSliderPosition] = useState<number>(50);
+  const [isSliderDragging, setIsSliderDragging] = useState<boolean>(false);
+  const sliderContainerRef = useRef<HTMLDivElement>(null);
   const [isProcessingLocal, setIsProcessingLocal] = useState<boolean>(false);
   const [isBatchProcessing, setIsBatchProcessing] = useState<boolean>(false);
   const [batchProgress, setBatchProgress] = useState<number>(0);
@@ -120,6 +124,30 @@ export default function App() {
     setBrightness(next.brightness);
     setContrast(next.contrast);
   };
+
+  useEffect(() => {
+    const handleMouseUp = () => setIsSliderDragging(false);
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+        if (!isSliderDragging || !sliderContainerRef.current) return;
+        const rect = sliderContainerRef.current.getBoundingClientRect();
+        const x = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
+        let pos = ((x - rect.left) / rect.width) * 100;
+        pos = Math.max(0, Math.min(100, pos));
+        setSliderPosition(pos);
+    };
+    if (isSliderDragging) {
+      window.addEventListener('mousemove', handleMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('touchmove', handleMove, { passive: false });
+      window.addEventListener('touchend', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('touchend', handleMouseUp);
+    };
+  }, [isSliderDragging]);
 
   const applyCrop = () => {
     if (!completedCrop || !cropImgRef.current || !activeImage) return;
@@ -882,131 +910,224 @@ export default function App() {
                        )}
                     </div>
                   </div>
-                )}
-
-                <div className="flex flex-col md:flex-row gap-5 flex-1 min-h-[300px] md:min-h-[500px] w-full relative">
+                )}                <div className="flex flex-col md:flex-row gap-5 flex-1 min-h-[300px] md:min-h-[500px] w-full relative">
                   {images.length > 1 && (
                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-100 text-blue-800 text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full border border-blue-200 z-10 shadow-sm pointer-events-none whitespace-nowrap">
                        PREVIEWING: {activeImage?.name} 
                      </div>
                   )}
-                  {/* Original Preview Card */}
-                  <div className="flex-1 bg-white border border-slate-200 rounded-xl flex flex-col overflow-hidden shadow-sm w-full md:w-1/2">
-                    <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-[12px] sm:text-[13px]">
-                      <span className="font-bold text-slate-700 truncate min-w-0" title={activeImage?.name}>Original: {activeImage?.name}</span>
-                      <div className="flex items-center gap-2">
-                        {activeImage && !isCropping && (
-                          <button onClick={() => setIsCropping(true)} className="flex items-center gap-1 text-slate-600 hover:text-blue-600 font-bold bg-white border border-slate-200 hover:border-blue-300 px-2 py-1 rounded shadow-sm transition-colors text-[11px]">
-                            <CropIcon className="w-3 h-3"/> Crop
-                          </button>
-                        )}
-                        {isCropping && (
-                          <div className="flex items-center gap-1">
-                            <button onClick={applyCrop} className="flex items-center gap-1 text-white hover:bg-green-700 font-bold bg-green-600 px-2 py-1 rounded shadow-sm transition-colors text-[11px]">
-                              <Check className="w-3 h-3"/> Apply
-                            </button>
-                            <button onClick={() => setIsCropping(false)} className="flex items-center gap-1 text-slate-600 hover:text-slate-800 font-bold bg-white border border-slate-200 hover:border-slate-300 px-2 py-1 rounded shadow-sm transition-colors text-[11px]">
-                              <X className="w-3 h-3"/> Cancel
-                            </button>
-                          </div>
-                        )}
-                        <span className="text-slate-500 font-bold whitespace-nowrap ml-1 flex-shrink-0">{activeImage && formatBytes(activeImage.size)}</span>
-                      </div>
-                    </div>
-                    <div className="flex-1 flex items-center justify-center p-2 sm:p-4 min-h-[250px]" style={{
-                      backgroundImage: 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)',
-                      backgroundSize: '20px 20px',
-                      backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
-                    }}>
-                      {activeImage && (
-                        isCropping ? (
-                          <ReactCrop
-                            crop={crop}
-                            onChange={(c) => setCrop(c)}
-                            onComplete={(c) => setCompletedCrop(c)}
-                            className="max-w-full outline-none bg-white p-1 border border-slate-100 rounded drop-shadow-md flex items-center justify-center max-h-[400px] xl:max-h-[500px]"
-                          >
-                            <img
-                              ref={cropImgRef}
-                              src={activeImage.url}
-                              alt="Crop Original"
-                              className="max-w-full max-h-[386px] xl:max-h-[486px] object-contain"
-                              style={{ filter: `grayscale(${grayscale ? 100 : 0}%) sepia(${sepia ? 100 : 0}%) brightness(${brightness}%) contrast(${contrast}%)` }}
-                            />
-                          </ReactCrop>
-                        ) : (
-                          <img
-                            src={activeImage.url}
-                            alt="Original"
-                            className="max-w-full max-h-[400px] xl:max-h-[500px] object-contain drop-shadow-md rounded bg-white p-1 border border-slate-100"
-                            style={{ filter: `grayscale(${grayscale ? 100 : 0}%) sepia(${sepia ? 100 : 0}%) brightness(${brightness}%) contrast(${contrast}%)` }}
-                          />
-                        )
-                      )}
-                    </div>
+
+                  <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-white/90 backdrop-blur border border-slate-200 p-1 rounded-lg flex items-center shadow-lg pointer-events-auto">
+                      <button onClick={() => setViewMode('split')} className={`px-3 py-1.5 text-[11px] font-bold rounded-md transition-all ${viewMode === 'split' ? 'bg-blue-600 shadow-sm text-white' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'}`}>Side-by-Side</button>
+                      <button onClick={() => setViewMode('slider')} className={`px-3 py-1.5 text-[11px] font-bold rounded-md transition-all ${viewMode === 'slider' ? 'bg-blue-600 shadow-sm text-white' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'}`}>Compare Slider</button>
                   </div>
 
-                  {/* Optimized Preview Card */}
-                  <div className="flex-1 bg-white border border-blue-600 rounded-xl flex flex-col overflow-hidden shadow-sm relative w-full md:w-1/2">
-                    <div className="px-4 py-3 bg-blue-50 border-b border-blue-100 flex justify-between items-center text-[12px] sm:text-[13px]">
-                      <span className="font-bold text-slate-800 truncate">Optimized Output</span>
-                      <span className="text-blue-700 font-extrabold whitespace-nowrap ml-2 flex-shrink-0">
-                         {isProcessingLocal ? 'Processing...' : activeProcessed ? formatBytes(activeProcessed.size) : '--'}
-                      </span>
-                    </div>
-                    <div className="flex-1 flex items-center justify-center p-2 sm:p-4 relative overflow-hidden min-h-[250px]" style={{
-                      backgroundImage: 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)',
-                      backgroundSize: '20px 20px',
-                      backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
-                    }}>
-                      {activeImage && (
-                        <img
-                          src={activeProcessed ? activeProcessed.url : activeImage.url}
-                          alt="Optimized"
-                          className={`max-w-full max-h-[400px] xl:max-h-[500px] object-contain drop-shadow-md transition-opacity duration-300 rounded bg-white p-1 border border-slate-100 ${isProcessingLocal ? 'opacity-40 grayscale' : 'opacity-100'}`}
-                        />
-                      )}
-                      
-                      {activeProcessed && activeImage && activeProcessed.size < activeImage.size && !isProcessingLocal && (
-                        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur shadow-lg border border-blue-100 px-4 py-2.5 rounded-xl text-center flex flex-col transform transition-transform hover:scale-105 pointer-events-none">
-                          <div className="text-2xl font-extrabold text-blue-600 leading-none mb-1">-{getSavingsPercentage(activeImage.size, activeProcessed.size)}%</div>
-                          <div className="text-[10px] uppercase tracking-[0.1em] text-slate-500 font-bold">Reduction</div>
+                  {viewMode === 'split' ? (
+                    <>
+                      {/* Original Preview Card */}
+                      <div className="flex-1 bg-white border border-slate-200 rounded-xl flex flex-col overflow-hidden shadow-sm w-full md:w-1/2">
+                        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-[12px] sm:text-[13px]">
+                          <span className="font-bold text-slate-700 truncate min-w-0" title={activeImage?.name}>Original: {activeImage?.name}</span>
+                          <div className="flex items-center gap-2">
+                            {activeImage && !isCropping && (
+                              <button onClick={() => setIsCropping(true)} className="flex items-center gap-1 text-slate-600 hover:text-blue-600 font-bold bg-white border border-slate-200 hover:border-blue-300 px-2 py-1 rounded shadow-sm transition-colors text-[11px]">
+                                <CropIcon className="w-3 h-3"/> Crop
+                              </button>
+                            )}
+                            {isCropping && (
+                              <div className="flex items-center gap-1 z-30">
+                                <button onClick={applyCrop} className="flex items-center gap-1 text-white hover:bg-green-700 font-bold bg-green-600 px-2 py-1 rounded shadow-sm transition-colors text-[11px]">
+                                  <Check className="w-3 h-3"/> Apply
+                                </button>
+                                <button onClick={() => setIsCropping(false)} className="flex items-center gap-1 text-slate-600 hover:text-slate-800 font-bold bg-white border border-slate-200 hover:border-slate-300 px-2 py-1 rounded shadow-sm transition-colors text-[11px]">
+                                  <X className="w-3 h-3"/> Cancel
+                                </button>
+                              </div>
+                            )}
+                            <span className="text-slate-500 font-bold whitespace-nowrap ml-1 flex-shrink-0">{activeImage && formatBytes(activeImage.size)}</span>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    {activeImage && (
-                      <div className="p-3 bg-blue-50/50 border-t border-blue-100 flex flex-col sm:flex-row gap-3 items-center">
-                        <div className="flex-1 w-full">
-                           <label className="block text-[11px] font-bold text-slate-500 mb-1 uppercase tracking-wide">Export Filename</label>
-                           <input
-                             type="text"
-                             value={activeImage.exportName !== undefined ? activeImage.exportName : activeImage.name}
-                             onChange={(e) => {
-                               const val = e.target.value;
-                               setImages(imgs => imgs.map(img => img.id === activeImage.id ? { ...img, exportName: val } : img));
-                             }}
-                             className="w-full text-[13px] px-2 py-1.5 border border-slate-300 rounded shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                           />
-                        </div>
-                        <div className="w-full sm:w-auto">
-                           <label className="block text-[11px] font-bold text-slate-500 mb-1 uppercase tracking-wide">Export Format</label>
-                           <select
-                             value={activeImage.exportFormat || 'original'}
-                             onChange={(e) => {
-                               const val = e.target.value as FileFormat | 'original';
-                               setImages(imgs => imgs.map(img => img.id === activeImage.id ? { ...img, exportFormat: val } : img));
-                             }}
-                             className="w-full sm:w-32 text-[13px] px-2 py-1.5 border border-slate-300 rounded shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white"
-                           >
-                             <option value="original">Use Global</option>
-                             <option value="image/jpeg">JPEG</option>
-                             <option value="image/png">PNG</option>
-                             <option value="image/webp">WebP</option>
-                           </select>
+                        <div className="flex-1 flex items-center justify-center p-2 sm:p-4 min-h-[250px]" style={{
+                          backgroundImage: 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)',
+                          backgroundSize: '20px 20px',
+                          backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+                        }}>
+                          {activeImage && (
+                            isCropping ? (
+                              <ReactCrop
+                                crop={crop}
+                                onChange={(c) => setCrop(c)}
+                                onComplete={(c) => setCompletedCrop(c)}
+                                className="max-w-full outline-none bg-white p-1 border border-slate-100 rounded drop-shadow-md flex items-center justify-center max-h-[400px] xl:max-h-[500px]"
+                              >
+                                <img
+                                  ref={cropImgRef}
+                                  src={activeImage.url}
+                                  alt="Crop Original"
+                                  className="max-w-full max-h-[386px] xl:max-h-[486px] object-contain"
+                                  style={{ filter: `grayscale(${grayscale ? 100 : 0}%) sepia(${sepia ? 100 : 0}%) brightness(${brightness}%) contrast(${contrast}%)` }}
+                                />
+                              </ReactCrop>
+                            ) : (
+                              <img
+                                src={activeImage.url}
+                                alt="Original"
+                                className="max-w-full max-h-[400px] xl:max-h-[500px] object-contain drop-shadow-md rounded bg-white p-1 border border-slate-100"
+                                style={{ filter: `grayscale(${grayscale ? 100 : 0}%) sepia(${sepia ? 100 : 0}%) brightness(${brightness}%) contrast(${contrast}%)` }}
+                              />
+                            )
+                          )}
                         </div>
                       </div>
-                    )}
-                  </div>
+
+                      {/* Optimized Preview Card */}
+                      <div className="flex-1 bg-white border border-blue-600 rounded-xl flex flex-col overflow-hidden shadow-sm relative w-full md:w-1/2">
+                        <div className="px-4 py-3 bg-blue-50 border-b border-blue-100 flex justify-between items-center text-[12px] sm:text-[13px]">
+                          <span className="font-bold text-slate-800 truncate">Optimized Output</span>
+                          <span className="text-blue-700 font-extrabold whitespace-nowrap ml-2 flex-shrink-0">
+                             {isProcessingLocal ? 'Processing...' : activeProcessed ? formatBytes(activeProcessed.size) : '--'}
+                          </span>
+                        </div>
+                        <div className="flex-1 flex items-center justify-center p-2 sm:p-4 relative overflow-hidden min-h-[250px]" style={{
+                          backgroundImage: 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)',
+                          backgroundSize: '20px 20px',
+                          backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+                        }}>
+                          {activeImage && (
+                            <img
+                              src={activeProcessed ? activeProcessed.url : activeImage.url}
+                              alt="Optimized"
+                              className={`max-w-full max-h-[400px] xl:max-h-[500px] object-contain drop-shadow-md transition-opacity duration-300 rounded bg-white p-1 border border-slate-100 ${isProcessingLocal ? 'opacity-40 grayscale' : 'opacity-100'}`}
+                            />
+                          )}
+                          
+                          {activeProcessed && activeImage && activeProcessed.size < activeImage.size && !isProcessingLocal && (
+                            <div className="absolute top-4 right-4 bg-white/95 backdrop-blur shadow-lg border border-blue-100 px-4 py-2.5 rounded-xl text-center flex flex-col transform transition-transform hover:scale-105 pointer-events-none z-10">
+                              <div className="text-2xl font-extrabold text-blue-600 leading-none mb-1">-{getSavingsPercentage(activeImage.size, activeProcessed.size)}%</div>
+                              <div className="text-[10px] uppercase tracking-[0.1em] text-slate-500 font-bold">Reduction</div>
+                            </div>
+                          )}
+                        </div>
+                        {activeImage && (
+                          <div className="p-3 bg-blue-50/50 border-t border-blue-100 flex flex-col sm:flex-row gap-3 items-center">
+                            <div className="flex-1 w-full">
+                               <label className="block text-[11px] font-bold text-slate-500 mb-1 uppercase tracking-wide">Export Filename</label>
+                               <input
+                                 type="text"
+                                 value={activeImage.exportName !== undefined ? activeImage.exportName : activeImage.name}
+                                 onChange={(e) => {
+                                   const val = e.target.value;
+                                   setImages(imgs => imgs.map(img => img.id === activeImage.id ? { ...img, exportName: val } : img));
+                                 }}
+                                 className="w-full text-[13px] px-2 py-1.5 border border-slate-300 rounded shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                               />
+                            </div>
+                            <div className="w-full sm:w-auto">
+                               <label className="block text-[11px] font-bold text-slate-500 mb-1 uppercase tracking-wide">Export Format</label>
+                               <select
+                                 value={activeImage.exportFormat || 'original'}
+                                 onChange={(e) => {
+                                   const val = e.target.value as FileFormat | 'original';
+                                   setImages(imgs => imgs.map(img => img.id === activeImage.id ? { ...img, exportFormat: val } : img));
+                                 }}
+                                 className="w-full sm:w-32 text-[13px] px-2 py-1.5 border border-slate-300 rounded shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white"
+                               >
+                                 <option value="original">Use Global</option>
+                                 <option value="image/jpeg">JPEG</option>
+                                 <option value="image/png">PNG</option>
+                                 <option value="image/webp">WebP</option>
+                               </select>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex-1 bg-white border border-blue-600 rounded-xl flex flex-col overflow-hidden shadow-sm relative w-full pt-16">
+                      <div className="flex-1 flex items-center justify-center relative overflow-hidden min-h-[300px]" 
+                           ref={sliderContainerRef}
+                           style={{
+                        backgroundImage: 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)',
+                        backgroundSize: '20px 20px',
+                        backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+                      }}>
+                        {activeImage && (
+                          <div className="relative w-full h-full flex items-center justify-center max-w-full">
+                            {/* Base Image (Optimized) */}
+                            <img
+                              src={activeProcessed ? activeProcessed.url : activeImage.url}
+                              alt="Optimized"
+                              className={`max-w-full max-h-[500px] xl:max-h-[700px] object-contain drop-shadow-md rounded bg-white/50 p-1 border border-slate-100 ${isProcessingLocal ? 'opacity-40 grayscale' : 'opacity-100'}`}
+                            />
+                            
+                            {/* Overlay Image (Original) */}
+                            <img
+                              src={activeImage.url}
+                              alt="Original"
+                              className="absolute max-w-full max-h-[500px] xl:max-h-[700px] object-contain drop-shadow-md rounded bg-white/50 p-1 border border-slate-100 pointer-events-none"
+                              style={{ 
+                                filter: `grayscale(${grayscale ? 100 : 0}%) sepia(${sepia ? 100 : 0}%) brightness(${brightness}%) contrast(${contrast}%)`,
+                                clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)` 
+                              }}
+                            />
+                          
+                            {/* Slider Handle */}
+                            <div 
+                              className="absolute top-0 bottom-0 flex flex-col items-center justify-center z-10" 
+                              style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
+                            >
+                               <div className="w-1 h-full bg-white shadow-[0_0_8px_rgba(0,0,0,0.5)] cursor-ew-resize" onMouseDown={() => setIsSliderDragging(true)} onTouchStart={() => setIsSliderDragging(true)}></div>
+                               <div 
+                                 className="absolute bg-blue-600 w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center cursor-ew-resize pointer-events-auto transform transition-transform hover:scale-110 active:scale-95"
+                                 onMouseDown={() => setIsSliderDragging(true)} 
+                                 onTouchStart={() => setIsSliderDragging(true)}
+                               >
+                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l6-6-6-6M9 18l-6-6 6-6"/></svg>
+                               </div>
+                            </div>
+                            
+                            <div className="absolute bottom-4 left-4 right-4 flex justify-between pointer-events-none px-4">
+                               <span className="bg-slate-800/70 text-white text-[11px] font-bold px-2 py-1 rounded backdrop-blur-sm">ORIGINAL</span>
+                               <span className="bg-blue-600/80 text-white text-[11px] font-bold px-2 py-1 rounded backdrop-blur-sm">OPTIMIZED {activeProcessed && `(-${getSavingsPercentage(activeImage.size, activeProcessed.size)}%)`}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {activeImage && (
+                        <div className="p-3 bg-blue-50/50 border-t border-blue-100 flex flex-col sm:flex-row gap-3 items-center z-10 w-full shrink-0">
+                          <div className="flex-1 w-full">
+                             <label className="block text-[11px] font-bold text-slate-500 mb-1 uppercase tracking-wide">Export Filename</label>
+                             <input
+                               type="text"
+                               value={activeImage.exportName !== undefined ? activeImage.exportName : activeImage.name}
+                               onChange={(e) => {
+                                 const val = e.target.value;
+                                 setImages(imgs => imgs.map(img => img.id === activeImage.id ? { ...img, exportName: val } : img));
+                               }}
+                               className="w-full text-[13px] px-2 py-1.5 border border-slate-300 rounded shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                             />
+                          </div>
+                          <div className="w-full sm:w-auto">
+                             <label className="block text-[11px] font-bold text-slate-500 mb-1 uppercase tracking-wide">Export Format</label>
+                             <select
+                               value={activeImage.exportFormat || 'original'}
+                               onChange={(e) => {
+                                 const val = e.target.value as FileFormat | 'original';
+                                 setImages(imgs => imgs.map(img => img.id === activeImage.id ? { ...img, exportFormat: val } : img));
+                               }}
+                               className="w-full sm:w-32 text-[13px] px-2 py-1.5 border border-slate-300 rounded shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white"
+                             >
+                               <option value="original">Use Global</option>
+                               <option value="image/jpeg">JPEG</option>
+                               <option value="image/png">PNG</option>
+                               <option value="image/webp">WebP</option>
+                             </select>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Ready for download section from design HTML - Desktop */}
