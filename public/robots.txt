@@ -2,4 +2,3 @@ User-agent: *
 Allow: /
 
 Sitemap: https://imageresizer-puce.vercel.app/sitemap.xml
-Host: imageresizer-puce.vercel.app
