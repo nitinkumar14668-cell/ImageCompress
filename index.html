@@ -23,19 +23,11 @@
       http-equiv="Cache-Control"
       content="public, max-age=31536000, immutable"
     />
-    <link
-      rel="preload"
-      as="image"
-      href="https://imageresizer-puce.vercel.app/og-image.jpg"
-      fetchpriority="high"
-    />
+    <link rel="preload" as="image" href="https://imageresizer-puce.vercel.app/og-image.jpg" imagesrcset="https://imageresizer-puce.vercel.app/og-image.jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
-    <noscript>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
-    </noscript>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://imageresizer-puce.vercel.app/" />
@@ -159,9 +151,11 @@
         <h3 id="how-it-works">How to compress and resize an image:</h3>
         <ul>
           <li>
-            <a href="#main-content">Upload your photo</a> via our secure
-            drag-and-drop interface at the top of the page. It takes just
-            seconds even for large files.
+            <span>
+              <a href="#main-content">Upload your photo</a> via our secure
+              drag-and-drop interface at the top of the page. It takes just
+              seconds even for large files.
+            </span>
           </li>
           <li>
             Select your exact target dimensions (width and height in pixels) or
@@ -311,7 +305,7 @@
         <p>&copy; 2024 Image Resizer &amp; Compressor. All rights reserved.</p>
       </footer>
     </div>
-    <script type="module" src="/src/main.tsx" async defer></script>
+    <script type="module" src="/src/main.tsx"></script>
     <script async defer>document.addEventListener("DOMContentLoaded",()=>setTimeout(()=>{const e=document.createElement("script");e.async=!0,e.defer=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-TRACKING-PLACEHOLDER",document.head.appendChild(e),window.dataLayer=window.dataLayer||[];const t=function(){window.dataLayer.push(arguments)};t("js",new Date),t("config","G-TRACKING-PLACEHOLDER")},100));</script>
   </body>
 </html>
