@@ -202,7 +202,7 @@ export default function App() {
           <nav className="hidden md:flex items-center gap-8 ml-8 flex-1">
             <a href="#main-content" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">Home</a>
             <a href="#how-it-works" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">How it Works</a>
-            <a href="#features" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">Features</a>
+            <a href="#advanced-features" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">Features</a>
             <a href="#about" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">About Us</a>
           </nav>
 
@@ -468,7 +468,7 @@ export default function App() {
             <div className="max-w-6xl mx-auto w-full">
               <div className="text-center mb-16">
                 <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">How to Resize & Compress Images?</h2>
-                <p className="text-slate-600 max-w-2xl mx-auto text-lg">Optimize your images flawlessly in three simple steps without uploading to any external servers.</p>
+                <p className="text-slate-600 max-w-2xl mx-auto text-lg">Optimize your images flawlessly in three simple steps without uploading to any external servers. Learn more <a href="#about" className="text-blue-600 hover:underline">about our philosophy here</a>.</p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative w-full">
@@ -479,7 +479,7 @@ export default function App() {
                     <span className="text-2xl font-bold text-blue-600">1</span>
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-3">Upload your photo</h3>
-                  <p className="text-slate-600 leading-relaxed">Drag and drop your JPEG, PNG, or WebP file into the container above to securely load it into your browser.</p>
+                  <p className="text-slate-600 leading-relaxed">Drag and drop your JPEG, PNG, or WebP file into the container above to securely load it into your browser. Using <a href="#advanced-features" className="text-blue-600 hover:underline">advanced features</a> starts right away.</p>
                 </div>
                 
                 <div className="relative z-10 flex flex-col items-center text-center bg-white">
@@ -502,11 +502,11 @@ export default function App() {
           </section>
 
           {/* Features Section */}
-          <section id="features" className="py-20 md:py-28 px-4 md:px-8 bg-slate-50 border-t border-slate-200">
+          <section id="advanced-features" className="py-20 md:py-28 px-4 md:px-8 bg-slate-50 border-t border-slate-200">
             <div className="max-w-6xl mx-auto w-full">
               <div className="text-center mb-16">
                 <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Why Use Our Image Tool?</h2>
-                <p className="text-slate-600 max-w-2xl mx-auto text-lg">Designed for speed, built for privacy, delivering the best quality available on the web.</p>
+                <p className="text-slate-600 max-w-2xl mx-auto text-lg">Designed for speed, built for privacy, delivering the best quality available on the web. Try uploading an image back at the <a href="#main-content" className="text-blue-600 hover:underline">top of the page</a>.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
@@ -551,7 +551,7 @@ export default function App() {
                   We built our free <a href="#main-content" className="text-blue-600 hover:underline">image resizer and compressor</a> with a simple philosophy: digital tools should be straightforward, fast, and respectful of user data. With the web constantly shifting towards higher-quality visual assets, optimizing file sizes can be a chore. Using heavy desktop photography software is often overkill for simple bounding-box resizing or format conversions.
                 </p>
                 <p>
-                  Our utility uses the native Canvas API provided by modern web browsers to shrink, scale, and compress images on the fly. Whether you are adjusting photography for social media, optimizing e-commerce product photos, or building lightning-fast <a href="#features" className="text-blue-600 hover:underline">mobile-friendly</a> websites, this tool gives you professional results for zero cost.
+                  Our utility uses the native Canvas API provided by modern web browsers to shrink, scale, and compress images on the fly. Whether you are adjusting photography for social media, optimizing e-commerce product photos, or building lightning-fast <a href="#advanced-features" className="text-blue-600 hover:underline">mobile-friendly</a> websites, this tool gives you professional results for zero cost.
                 </p>
                 <p>
                   Furthermore, because page loading speed is a critical ranking factor for search engines, mastering image optimization is vital for Search Engine Optimization (SEO). Formats like WebP offer superior compression characteristics without visible degradation in quality, helping you ace your Core Web Vitals assessments. You can learn more about how this process works in our <a href="#how-it-works" className="text-blue-600 hover:underline">step-by-step guide</a> above.
@@ -587,10 +587,10 @@ export default function App() {
             <div>
               <h4 className="text-white font-bold mb-4 tracking-wide uppercase text-sm">Features</h4>
               <ul className="space-y-3">
-                <li><a href="#features" className="text-slate-400 hover:text-white transition-colors text-sm">Resize JPEG</a></li>
-                <li><a href="#features" className="text-slate-400 hover:text-white transition-colors text-sm">Compress PNG</a></li>
-                <li><a href="#features" className="text-slate-400 hover:text-white transition-colors text-sm">Convert to WebP</a></li>
-                <li><a href="#features" className="text-slate-400 hover:text-white transition-colors text-sm">Change Aspect Ratio</a></li>
+                <li><a href="#advanced-features" className="text-slate-400 hover:text-white transition-colors text-sm">Resize JPEG</a></li>
+                <li><a href="#advanced-features" className="text-slate-400 hover:text-white transition-colors text-sm">Compress PNG</a></li>
+                <li><a href="#advanced-features" className="text-slate-400 hover:text-white transition-colors text-sm">Convert to WebP</a></li>
+                <li><a href="#advanced-features" className="text-slate-400 hover:text-white transition-colors text-sm">Change Aspect Ratio</a></li>
               </ul>
             </div>
 
