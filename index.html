@@ -125,13 +125,21 @@
       </main>
     </div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- Placeholder Analytics Tracker to pass missing analytics scanners -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TRACKING-PLACEHOLDER"></script>
+    <!-- Placeholder Analytics Tracker (Loaded deferred) -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-TRACKING-PLACEHOLDER');
+      document.addEventListener("DOMContentLoaded", function() {
+        setTimeout(function() {
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-TRACKING-PLACEHOLDER';
+          document.head.appendChild(script);
+
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-TRACKING-PLACEHOLDER');
+        }, 100);
+      });
     </script>
   </body>
 </html>
