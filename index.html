@@ -19,7 +19,6 @@
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖼️</text></svg>"
     />
 
-    <!-- Cache & Performance Optimization -->
     <meta
       http-equiv="Cache-Control"
       content="public, max-age=31536000, immutable"
@@ -32,8 +31,12 @@
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    </noscript>
 
-    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://imageresizer-puce.vercel.app/" />
     <meta
@@ -120,7 +123,6 @@
   <body>
     <a href="#main-content" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">Skip to main content</a>
     <div id="root">
-      <!-- SEO Fallback for Bots that block JS -->
       <header>
         <h1>Free Image Resizer &amp; Compressor Online</h1>
         <nav aria-label="Main Navigation">
@@ -309,23 +311,7 @@
         <p>&copy; 2024 Image Resizer &amp; Compressor. All rights reserved.</p>
       </footer>
     </div>
-    <script type="module" src="/src/main.tsx"></script>
-    <!-- Optimized Analytics Tracker -->
-    <script>
-      document.addEventListener("DOMContentLoaded", () =>
-        setTimeout(() => {
-          const e = document.createElement("script");
-          ((e.async = !0),
-            (e.src =
-              "https://www.googletagmanager.com/gtag/js?id=G-TRACKING-PLACEHOLDER"),
-            document.head.appendChild(e),
-            (window.dataLayer = window.dataLayer || []));
-          const t = function () {
-            window.dataLayer.push(arguments);
-          };
-          (t("js", new Date()), t("config", "G-TRACKING-PLACEHOLDER"));
-        }, 100),
-      );
-    </script>
+    <script type="module" src="/src/main.tsx" async defer></script>
+    <script async defer>document.addEventListener("DOMContentLoaded",()=>setTimeout(()=>{const e=document.createElement("script");e.async=!0,e.defer=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-TRACKING-PLACEHOLDER",document.head.appendChild(e),window.dataLayer=window.dataLayer||[];const t=function(){window.dataLayer.push(arguments)};t("js",new Date),t("config","G-TRACKING-PLACEHOLDER")},100));</script>
   </body>
 </html>
