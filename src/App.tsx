@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef, ChangeEvent, DragEvent } from 'react';
-import { UploadCloud, Image as ImageIcon, Download, Settings2, RefreshCw, X } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, Download, Settings2, RefreshCw, X, Layers } from 'lucide-react';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 type FileFormat = 'image/jpeg' | 'image/png' | 'image/webp';
 
 interface ImageMeta {
+  id: string;
   url: string;
   name: string;
   size: number; // bytes
@@ -15,65 +18,81 @@ interface ImageMeta {
 interface ProcessedImage {
   url: string;
   size: number;
+  format: string;
 }
 
 export default function App() {
-  const [originalImage, setOriginalImage] = useState<ImageMeta | null>(null);
-  const [processedImage, setProcessedImage] = useState<ProcessedImage | null>(null);
+  const [images, setImages] = useState<ImageMeta[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [processedImages, setProcessedImages] = useState<Record<string, ProcessedImage>>({});
   
-  const [width, setWidth] = useState<number>(0);
-  const [height, setHeight] = useState<number>(0);
+  // Batch Settings
+  const [targetWidth, setTargetWidth] = useState<number | ''>('');
+  const [targetHeight, setTargetHeight] = useState<number | ''>('');
+  const [scaleMode, setScaleMode] = useState<'original' | 'width' | 'height' | 'exact'>('original');
   const [keepAspectRatio, setKeepAspectRatio] = useState<boolean>(true);
-  const [format, setFormat] = useState<FileFormat>('image/jpeg');
+  
+  const [format, setFormat] = useState<FileFormat | 'original'>('original');
   const [quality, setQuality] = useState<number>(0.8);
   
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [isProcessingLocal, setIsProcessingLocal] = useState<boolean>(false);
+  const [isBatchProcessing, setIsBatchProcessing] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  // Aspect ratio reference
-  const aspectRatio = useRef<number>(1);
+  const activeImage = images.find(img => img.id === activeId) || null;
 
-  // Cleanup object URLs to avoid memory leaks
+  // Cleanup object URLs for removed images
   useEffect(() => {
     return () => {
-      if (originalImage) URL.revokeObjectURL(originalImage.url);
-      if (processedImage) URL.revokeObjectURL(processedImage.url);
+      images.forEach(img => URL.revokeObjectURL(img.url));
+      Object.values(processedImages).forEach(img => URL.revokeObjectURL(img.url));
     };
-  }, [originalImage, processedImage]);
+  }, []);
 
-  const handleFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      alert('Please select a valid image file.');
+  const handleFiles = (files: FileList | File[]) => {
+    const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (validFiles.length === 0) {
+      alert('Please select valid image files.');
       return;
     }
 
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      const meta: ImageMeta = {
-        url,
-        name: file.name,
-        size: file.size,
-        width: img.width,
-        height: img.height,
-        type: file.type,
-      };
-      
-      aspectRatio.current = img.width / img.height;
-      
-      setOriginalImage(meta);
-      setWidth(img.width);
-      setHeight(img.height);
-      setFormat((file.type as FileFormat) || 'image/jpeg');
-      setQuality(0.8);
-      setProcessedImage(null);
-    };
-    img.src = url;
+    const promises = validFiles.map((file) => {
+      return new Promise<ImageMeta | null>((resolve) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          resolve({
+            id: Math.random().toString(36).substring(2, 11),
+            url,
+            name: file.name,
+            size: file.size,
+            width: img.width,
+            height: img.height,
+            type: file.type,
+          });
+        };
+        img.onerror = () => resolve(null);
+        img.src = url;
+      });
+    });
+
+    Promise.all(promises).then((results) => {
+      const validImages = results.filter(Boolean) as ImageMeta[];
+      if (validImages.length > 0) {
+        setImages((prev) => {
+          const newImages = [...prev, ...validImages];
+          if (!activeId) {
+            setActiveId(newImages[0].id);
+          }
+          return newImages;
+        });
+      }
+    });
   };
 
   const onFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      handleFile(e.target.files[0]);
+      handleFiles(e.target.files);
     }
   };
 
@@ -90,78 +109,184 @@ export default function App() {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      handleFile(e.dataTransfer.files[0]);
+      handleFiles(e.dataTransfer.files);
     }
   };
 
-  const handleWidthChange = (val: number) => {
-    setWidth(val);
-    if (keepAspectRatio && aspectRatio.current) {
-      setHeight(Math.round(val / aspectRatio.current));
+  // Compute active image dimensions based on settings
+  let activeTargetWidth = activeImage?.width || 0;
+  let activeTargetHeight = activeImage?.height || 0;
+
+  if (activeImage) {
+    if (scaleMode === 'exact') {
+      activeTargetWidth = (targetWidth as number) || activeImage.width;
+      activeTargetHeight = (targetHeight as number) || activeImage.height;
+    } else if (scaleMode === 'width' && targetWidth) {
+      activeTargetWidth = targetWidth;
+      activeTargetHeight = Math.round(targetWidth / (activeImage.width / activeImage.height));
+    } else if (scaleMode === 'height' && targetHeight) {
+      activeTargetHeight = targetHeight;
+      activeTargetWidth = Math.round(targetHeight * (activeImage.width / activeImage.height));
+    }
+  }
+
+  const handleWidthChange = (val: number | '') => {
+    setTargetWidth(val);
+    if (val === '') {
+      setScaleMode('original'); // Or something else
+    } else {
+      setScaleMode(keepAspectRatio ? 'width' : 'exact');
     }
   };
 
-  const handleHeightChange = (val: number) => {
-    setHeight(val);
-    if (keepAspectRatio && aspectRatio.current) {
-      setWidth(Math.round(val * aspectRatio.current));
+  const handleHeightChange = (val: number | '') => {
+    setTargetHeight(val);
+    if (val === '') {
+      setScaleMode('original');
+    } else {
+      setScaleMode(keepAspectRatio ? 'height' : 'exact');
     }
   };
 
-  const processImage = async () => {
-    if (!originalImage) return;
-    
-    setIsProcessing(true);
+  const toggleAspectRatio = (checked: boolean) => {
+    setKeepAspectRatio(checked);
+    if (checked) {
+      if (targetWidth) setScaleMode('width');
+      else if (targetHeight) setScaleMode('height');
+      else setScaleMode('original');
+    } else {
+      if (targetWidth || targetHeight) setScaleMode('exact');
+      else setScaleMode('original');
+    }
+  };
+
+  const processSingleImage = async (img: ImageMeta): Promise<ProcessedImage> => {
+    let tWidth = img.width;
+    let tHeight = img.height;
+
+    if (scaleMode === 'exact') {
+      tWidth = (targetWidth as number) || img.width;
+      tHeight = (targetHeight as number) || img.height;
+    } else if (scaleMode === 'width' && targetWidth) {
+      tWidth = targetWidth;
+      tHeight = Math.round(targetWidth / (img.width / img.height));
+    } else if (scaleMode === 'height' && targetHeight) {
+      tHeight = targetHeight;
+      tWidth = Math.round(targetHeight * (img.width / img.height));
+    }
+
+    const tFormat = format === 'original' ? (img.type as FileFormat) : format;
+    const finalFormat = ['image/jpeg', 'image/png', 'image/webp'].includes(tFormat) ? tFormat : 'image/jpeg';
+
+    return new Promise((resolve, reject) => {
+      const imageObj = new Image();
+      imageObj.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = tWidth;
+        canvas.height = tHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return reject(new Error('Canvas context not supported.'));
+        ctx.drawImage(imageObj, 0, 0, tWidth, tHeight);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve({
+                url: URL.createObjectURL(blob),
+                size: blob.size,
+                format: finalFormat,
+              });
+            } else {
+              reject(new Error('Failed to create blob.'));
+            }
+          },
+          finalFormat,
+          quality
+        );
+      };
+      imageObj.onerror = () => reject(new Error('Failed to load image for processing.'));
+      imageObj.src = img.url;
+    });
+  };
+
+  // Debounced auto-processing of ACTIVE image
+  useEffect(() => {
+    if (!activeImage) return;
+
+    setIsProcessingLocal(true);
+    const timer = setTimeout(async () => {
+      try {
+        const processed = await processSingleImage(activeImage);
+        setProcessedImages(prev => {
+          // Cleanup old URL
+          if (prev[activeImage.id]) URL.revokeObjectURL(prev[activeImage.id].url);
+          return { ...prev, [activeImage.id]: processed };
+        });
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsProcessingLocal(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [activeImage, targetWidth, targetHeight, scaleMode, format, quality]);
+
+  const downloadAll = async () => {
+    if (images.length === 0) return;
+    setIsBatchProcessing(true);
     
     try {
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('Canvas context not supported.'));
-            return;
-          }
-          ctx.drawImage(img, 0, 0, width, height);
-          canvas.toBlob(
-            (blob) => {
-              if (blob) resolve(blob);
-              else reject(new Error('Failed to create blob.'));
-            },
-            format,
-            quality
-          );
-        };
-        img.onerror = () => reject(new Error('Failed to load image for processing.'));
-        img.src = originalImage.url;
-      });
+      const zip = new JSZip();
 
-      const processedUrl = URL.createObjectURL(blob);
-      if (processedImage) URL.revokeObjectURL(processedImage.url);
+      for (let i = 0; i < images.length; i++) {
+        const img = images[i];
+        const processed = await processSingleImage(img);
+        
+        // Update local state just in case
+        setProcessedImages(prev => ({ ...prev, [img.id]: processed }));
+        
+        const response = await fetch(processed.url);
+        const blob = await response.blob();
+        
+        const ext = processed.format.split('/')[1] || 'jpeg';
+        // handle duplicate names
+        const baseName = img.name.replace(/\.[^/.]+$/, "");
+        const newName = `${baseName}-optimized.${ext}`;
+        
+        zip.file(newName, blob);
+      }
       
-      setProcessedImage({
-        url: processedUrl,
-        size: blob.size,
-      });
-    } catch (error) {
-      console.error(error);
-      alert('Error processing image.');
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      saveAs(zipBlob, 'optimized-images.zip');
+      
+    } catch (err) {
+      console.error(err);
+      alert('Failed to batch process images.');
     } finally {
-      setIsProcessing(false);
+      setIsBatchProcessing(false);
     }
   };
 
-  // Debounced auto-processing when settings change
-  useEffect(() => {
-    if (!originalImage) return;
-    const timer = setTimeout(() => {
-      processImage();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [width, height, format, quality, originalImage]);
+  const removeImage = (idToRemove: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // prevent setting active
+    
+    // Revoke blobs
+    const img = images.find(i => i.id === idToRemove);
+    if (img) URL.revokeObjectURL(img.url);
+    if (processedImages[idToRemove]) URL.revokeObjectURL(processedImages[idToRemove].url);
+    
+    setImages(prev => {
+      const newImages = prev.filter(img => img.id !== idToRemove);
+      if (activeId === idToRemove) {
+        setActiveId(newImages.length > 0 ? newImages[0].id : null);
+      }
+      return newImages;
+    });
+    setProcessedImages(prev => {
+      const { [idToRemove]: removed, ...rest } = prev;
+      return rest;
+    });
+  };
 
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return '0 B';
@@ -172,17 +297,19 @@ export default function App() {
   };
 
   const resetAll = () => {
-    if (originalImage) URL.revokeObjectURL(originalImage.url);
-    if (processedImage) URL.revokeObjectURL(processedImage.url);
-    setOriginalImage(null);
-    setProcessedImage(null);
+    images.forEach(img => URL.revokeObjectURL(img.url));
+    Object.values(processedImages).forEach(img => URL.revokeObjectURL(img.url));
+    setImages([]);
+    setProcessedImages({});
+    setActiveId(null);
   };
 
-  const getSavingsPercentage = () => {
-    if (!originalImage || !processedImage) return 0;
-    const saving = ((originalImage.size - processedImage.size) / originalImage.size) * 100;
+  const getSavingsPercentage = (originalSize: number, newSize: number) => {
+    const saving = ((originalSize - newSize) / originalSize) * 100;
     return saving > 0 ? saving.toFixed(1) : 0;
   };
+
+  const activeProcessed = activeImage ? processedImages[activeImage.id] : null;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-blue-100 selection:text-blue-900 flex flex-col whitespace-normal">
@@ -206,7 +333,7 @@ export default function App() {
             <a href="#about" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">About Us</a>
           </nav>
 
-          {originalImage && (
+          {images.length > 0 && (
             <div className="flex items-center">
               <button
                 onClick={resetAll}
@@ -221,7 +348,7 @@ export default function App() {
 
       {/* Main Tool Area */}
       <main id="main-content" className="w-full pb-8 flex-none flex flex-col bg-slate-50">
-        {!originalImage ? (
+        {images.length === 0 ? (
           <div className="w-full items-center justify-center px-4 md:px-8 py-12 md:py-20 lg:py-24 relative overflow-hidden">
             <div className="absolute inset-0 bg-blue-50/50 -z-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#CBD5E1 1px, transparent 1px)', backgroundSize: '32px 32px', opacity: 0.3 }}></div>
             
@@ -264,7 +391,10 @@ export default function App() {
               {/* Sidebar Controls Column - Underneath image on mobile */}
               <div className="lg:col-span-3 w-full">
                 <aside className="bg-white border border-slate-200 rounded-xl p-5 md:p-6 shadow-sm sticky top-24 flex flex-col w-full">
-                  <div className="text-[12px] uppercase tracking-[0.08em] text-slate-500 font-bold mb-4">Dimensions</div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-[12px] uppercase tracking-[0.08em] text-slate-500 font-bold">Dimensions</div>
+                    {images.length > 1 && <div className="text-[10px] uppercase font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Batch Mode</div>}
+                  </div>
                   
                   {/* Dimensions */}
                   <div className="space-y-4 mb-6 w-full">
@@ -273,8 +403,9 @@ export default function App() {
                         <label className="block text-[13px] font-bold text-slate-700 mb-1.5">Width (px)</label>
                         <input
                           type="number"
-                          value={width || ''}
-                          onChange={(e) => handleWidthChange(Number(e.target.value))}
+                          value={targetWidth}
+                          placeholder={activeTargetWidth.toString()}
+                          onChange={(e) => handleWidthChange(e.target.value ? Number(e.target.value) : '')}
                           className="w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-[15px] font-medium text-slate-800 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 transition-colors shadow-sm"
                         />
                       </div>
@@ -282,8 +413,9 @@ export default function App() {
                         <label className="block text-[13px] font-bold text-slate-700 mb-1.5">Height (px)</label>
                         <input
                           type="number"
-                          value={height || ''}
-                          onChange={(e) => handleHeightChange(Number(e.target.value))}
+                          value={targetHeight}
+                          placeholder={activeTargetHeight.toString()}
+                          onChange={(e) => handleHeightChange(e.target.value ? Number(e.target.value) : '')}
                           className="w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-[15px] font-medium text-slate-800 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 transition-colors shadow-sm"
                         />
                       </div>
@@ -292,7 +424,7 @@ export default function App() {
                       <input
                         type="checkbox"
                         checked={keepAspectRatio}
-                        onChange={(e) => setKeepAspectRatio(e.target.checked)}
+                        onChange={(e) => toggleAspectRatio(e.target.checked)}
                         className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-600 accent-blue-600 flex-shrink-0"
                       />
                       <span className="text-[13px] text-slate-700 font-semibold truncate">Lock Aspect Ratio</span>
@@ -305,6 +437,16 @@ export default function App() {
                   <div className="mb-6 w-full">
                     <label className="block text-[13px] font-bold text-slate-700 mb-2">Target Format</label>
                     <div className="flex gap-2 w-full">
+                      <button
+                        onClick={() => setFormat('original')}
+                        className={`flex-1 py-2 px-1 text-[11px] font-bold rounded-md border transition-all truncate ${
+                          format === 'original'
+                            ? 'bg-blue-50 border-blue-600 text-blue-700 shadow-sm'
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        MATCH
+                      </button>
                       {(['image/jpeg', 'image/png', 'image/webp'] as FileFormat[]).map((f) => {
                         const lbl = f.split('/')[1].toUpperCase();
                         const isSelected = format === f;
@@ -312,7 +454,7 @@ export default function App() {
                           <button
                             key={f}
                             onClick={() => setFormat(f)}
-                            className={`flex-1 py-2 px-2 text-[12px] font-bold rounded-md border transition-all truncate ${
+                            className={`flex-1 py-2 px-1 text-[11px] font-bold rounded-md border transition-all truncate ${
                               isSelected
                                 ? 'bg-blue-50 border-blue-600 text-blue-700 shadow-sm'
                                 : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -352,18 +494,18 @@ export default function App() {
                   
                   <div className="mt-8 pt-5 border-t border-slate-100 w-full mb-1">
                     <a
-                      href={processedImage?.url || '#'}
-                      download={`optimized-${originalImage.name.replace(/\.[^/.]+$/, "")}.${format.split('/')[1]}`}
+                      href={activeProcessed?.url || '#'}
+                      download={activeImage ? `optimized-${activeImage.name.replace(/\.[^/.]+$/, "")}.${(activeProcessed?.format || format).split('/')[1]}` : 'image'}
                       className={`w-full flex items-center justify-center py-4 px-4 rounded-xl font-bold transition-all text-[15px] ${
-                        processedImage
+                        activeProcessed
                           ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg'
                           : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
                       }`}
                       onClick={(e) => {
-                        if (!processedImage) e.preventDefault();
+                        if (!activeProcessed) e.preventDefault();
                       }}
                     >
-                      <Download className="w-5 h-5 mr-2" /> Download Optimised Image
+                      <Download className="w-5 h-5 mr-2" /> Download Displayed
                     </a>
                   </div>
                 </aside>
@@ -372,20 +514,50 @@ export default function App() {
               {/* Visuals Canvas Column */}
               <div className="lg:col-span-9 flex flex-col gap-6 h-full w-full max-w-full">
                 
+                {/* Horizontal Image List */}
+                {images.length > 0 && (
+                  <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm w-full relative">
+                    <div className="flex gap-3 overflow-x-auto pb-2 snap-x items-center">
+                      <label className="flex-shrink-0 flex items-center justify-center w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 text-slate-400 hover:text-blue-500 hover:border-blue-400 hover:bg-blue-50 transition-colors cursor-pointer ml-1">
+                        <UploadCloud className="w-6 h-6" />
+                        <input type="file" className="hidden" accept="image/*" multiple onChange={onFileUpload} />
+                      </label>
+                      <div className="w-px h-10 bg-slate-200 flex-shrink-0 mx-1"></div>
+                      {images.map(img => (
+                        <div 
+                          key={img.id} 
+                          onClick={() => setActiveId(img.id)}
+                          className={`flex-shrink-0 relative w-16 h-16 rounded-xl overflow-hidden cursor-pointer transition-all snap-start shadow-sm border-2 ${activeId === img.id ? 'border-blue-500 ring-4 ring-blue-50 scale-105' : 'border-transparent hover:scale-105'}`}
+                        >
+                          <img src={img.url} alt={img.name} className="w-full h-full object-cover bg-slate-100" />
+                          <button 
+                            onClick={(e) => removeImage(img.id, e)}
+                            className="absolute top-1 right-1 bg-slate-900/50 hover:bg-red-500 text-white p-0.5 rounded-full opacity-0 hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Ready for download sticky mobile bar - visible only on small screens */}
-                {processedImage && !isProcessing && (
+                {activeProcessed && !isProcessingLocal && (
                   <div className="lg:hidden bg-white p-4 rounded-xl border border-blue-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] sticky justify-between flex-row items-center gap-4 top-[72px] z-40 flex">
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-slate-800 mb-0.5 text-sm truncate">Ready to download</div>
-                      <div className="text-[11px] text-slate-500 truncate">- {getSavingsPercentage()}% reduction</div>
+                      <div className="text-[11px] text-slate-500 truncate">- {getSavingsPercentage(activeImage!.size, activeProcessed.size)}% reduction</div>
                     </div>
-                    <a
-                      href={processedImage.url}
-                      download={`optimized-${originalImage.name.replace(/\.[^/.]+$/, "")}.${format.split('/')[1]}`}
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md text-[13px] shadow whitespace-nowrap"
-                    >
-                      Download
-                    </a>
+                    <div className="flex gap-2">
+                       <a
+                         href={activeProcessed.url}
+                         download={activeImage ? `optimized-${activeImage.name.replace(/\.[^/.]+$/, "")}.${activeProcessed.format.split('/')[1]}` : 'image'}
+                         className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-md text-[13px] shadow whitespace-nowrap"
+                       >
+                         Download
+                       </a>
+                    </div>
                   </div>
                 )}
 
@@ -393,19 +565,21 @@ export default function App() {
                   {/* Original Preview Card */}
                   <div className="flex-1 bg-white border border-slate-200 rounded-xl flex flex-col overflow-hidden shadow-sm w-full md:w-1/2">
                     <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-[12px] sm:text-[13px]">
-                      <span className="font-bold text-slate-700 truncate min-w-0" title={originalImage.name}>Original: {originalImage.name}</span>
-                      <span className="text-slate-500 font-bold whitespace-nowrap ml-2 flex-shrink-0">{formatBytes(originalImage.size)}</span>
+                      <span className="font-bold text-slate-700 truncate min-w-0" title={activeImage?.name}>Original: {activeImage?.name}</span>
+                      <span className="text-slate-500 font-bold whitespace-nowrap ml-2 flex-shrink-0">{activeImage && formatBytes(activeImage.size)}</span>
                     </div>
                     <div className="flex-1 flex items-center justify-center p-2 sm:p-4 min-h-[250px]" style={{
                       backgroundImage: 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)',
                       backgroundSize: '20px 20px',
                       backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
                     }}>
-                      <img
-                        src={originalImage.url}
-                        alt="Original"
-                        className="max-w-full max-h-[400px] xl:max-h-[500px] object-contain drop-shadow-md rounded bg-white p-1 border border-slate-100"
-                      />
+                      {activeImage && (
+                        <img
+                          src={activeImage.url}
+                          alt="Original"
+                          className="max-w-full max-h-[400px] xl:max-h-[500px] object-contain drop-shadow-md rounded bg-white p-1 border border-slate-100"
+                        />
+                      )}
                     </div>
                   </div>
 
@@ -414,7 +588,7 @@ export default function App() {
                     <div className="px-4 py-3 bg-blue-50 border-b border-blue-100 flex justify-between items-center text-[12px] sm:text-[13px]">
                       <span className="font-bold text-slate-800 truncate">Optimized Output</span>
                       <span className="text-blue-700 font-extrabold whitespace-nowrap ml-2 flex-shrink-0">
-                         {isProcessing ? 'Processing...' : processedImage ? formatBytes(processedImage.size) : '--'}
+                         {isProcessingLocal ? 'Processing...' : activeProcessed ? formatBytes(activeProcessed.size) : '--'}
                       </span>
                     </div>
                     <div className="flex-1 flex items-center justify-center p-2 sm:p-4 relative overflow-hidden min-h-[250px]" style={{
@@ -422,15 +596,17 @@ export default function App() {
                       backgroundSize: '20px 20px',
                       backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
                     }}>
-                      <img
-                        src={processedImage ? processedImage.url : originalImage.url}
-                        alt="Optimized"
-                        className={`max-w-full max-h-[400px] xl:max-h-[500px] object-contain drop-shadow-md transition-opacity duration-300 rounded bg-white p-1 border border-slate-100 ${isProcessing ? 'opacity-40 grayscale' : 'opacity-100'}`}
-                      />
+                      {activeImage && (
+                        <img
+                          src={activeProcessed ? activeProcessed.url : activeImage.url}
+                          alt="Optimized"
+                          className={`max-w-full max-h-[400px] xl:max-h-[500px] object-contain drop-shadow-md transition-opacity duration-300 rounded bg-white p-1 border border-slate-100 ${isProcessingLocal ? 'opacity-40 grayscale' : 'opacity-100'}`}
+                        />
+                      )}
                       
-                      {processedImage && processedImage.size < originalImage.size && !isProcessing && (
-                        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur shadow-lg border border-blue-100 px-4 py-2.5 rounded-xl text-center flex flex-col transform transition-transform hover:scale-105">
-                          <div className="text-2xl font-extrabold text-blue-600 leading-none mb-1">-{getSavingsPercentage()}%</div>
+                      {activeProcessed && activeImage && activeProcessed.size < activeImage.size && !isProcessingLocal && (
+                        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur shadow-lg border border-blue-100 px-4 py-2.5 rounded-xl text-center flex flex-col transform transition-transform hover:scale-105 pointer-events-none">
+                          <div className="text-2xl font-extrabold text-blue-600 leading-none mb-1">-{getSavingsPercentage(activeImage.size, activeProcessed.size)}%</div>
                           <div className="text-[10px] uppercase tracking-[0.1em] text-slate-500 font-bold">Reduction</div>
                         </div>
                       )}
@@ -439,19 +615,48 @@ export default function App() {
                 </div>
 
                 {/* Ready for download section from design HTML - Desktop */}
-                {processedImage && !isProcessing && (
-                  <div className="hidden lg:flex bg-white px-6 py-5 rounded-xl border border-blue-100 flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm mb-4">
+                {images.length > 0 && (
+                  <div className="bg-white px-6 py-5 rounded-xl border border-blue-100 flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shadow-sm mb-4 hidden md:flex">
                     <div className="max-w-xl">
-                      <div className="font-bold text-slate-800 mb-1 text-lg">Ready for download</div>
-                      <div className="text-[13px] text-slate-500 leading-relaxed">All transformations applied successfully. Your image has been optimized for the web resulting in a smaller footprint with preserved visuals.</div>
+                      <div className="font-bold text-slate-800 mb-1 text-lg">Batch Processing Ready</div>
+                      <div className="text-[13px] text-slate-500 leading-relaxed">
+                        {images.length === 1 
+                          ? "Your image has been optimized for the web resulting in a smaller footprint with preserved visuals."
+                          : `${images.length} images are ready. Download them all as a convenient ZIP archive.`}
+                      </div>
                     </div>
-                    <a
-                      href={processedImage.url}
-                      download={`optimized-${originalImage.name.replace(/\.[^/.]+$/, "")}.${format.split('/')[1]}`}
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md flex items-center justify-center whitespace-nowrap transition-all hover:-translate-y-0.5"
-                    >
-                      Download Image
-                    </a>
+                    <div className="flex gap-3">
+                      {images.length === 1 ? (
+                        <a
+                          href={activeProcessed?.url}
+                          download={activeImage ? `optimized-${activeImage.name.replace(/\.[^/.]+$/, "")}.${activeProcessed?.format.split('/')[1]}` : 'image'}
+                          className={`font-bold py-3 px-8 rounded-lg shadow-md flex items-center justify-center whitespace-nowrap transition-all hover:-translate-y-0.5 ${
+                            activeProcessed 
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                            : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                          }`}
+                          onClick={(e) => { if (!activeProcessed) e.preventDefault(); }}
+                        >
+                          Download Image
+                        </a>
+                      ) : (
+                        <button
+                          onClick={downloadAll}
+                          disabled={isBatchProcessing}
+                          className={`font-bold py-3 px-8 rounded-lg shadow-md flex items-center justify-center whitespace-nowrap transition-all hover:-translate-y-0.5 ${
+                            isBatchProcessing 
+                            ? 'bg-blue-400 text-white cursor-not-allowed' 
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                          }`}
+                        >
+                          {isBatchProcessing ? (
+                            <><RefreshCw className="w-5 h-5 mr-2 animate-spin" /> Compressing...</>
+                          ) : (
+                            <><Layers className="w-5 h-5 mr-2" /> Download All (ZIP)</>
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -461,7 +666,7 @@ export default function App() {
       </main>
 
       {/* SEO Sections (Only visible on initial load / when no image is uploaded) */}
-      {!originalImage && (
+      {images.length === 0 && (
         <div className="w-full bg-white flex-1 relative z-10">
           {/* How It Works Section */}
           <section id="how-it-works" className="py-20 md:py-28 px-4 md:px-8 border-t border-slate-200 w-full overflow-hidden">
