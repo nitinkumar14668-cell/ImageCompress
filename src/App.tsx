@@ -391,9 +391,18 @@ export default function App() {
               {/* Sidebar Controls Column - Underneath image on mobile */}
               <div className="lg:col-span-3 w-full">
                 <aside className="bg-white border border-slate-200 rounded-xl p-5 md:p-6 shadow-sm sticky top-24 flex flex-col w-full">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-[12px] uppercase tracking-[0.08em] text-slate-500 font-bold">Dimensions</div>
-                    {images.length > 1 && <div className="text-[10px] uppercase font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Batch Mode</div>}
+                  <div className="flex flex-col mb-4 border-b border-slate-100 pb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-[12px] uppercase tracking-[0.08em] text-slate-500 font-bold">
+                        {images.length > 1 ? 'Global Settings' : 'Dimensions'}
+                      </div>
+                      {images.length > 1 && <div className="text-[10px] uppercase font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Batch Mode</div>}
+                    </div>
+                    {images.length > 1 && (
+                      <p className="text-[11.5px] text-slate-500 mt-2 font-medium leading-relaxed bg-slate-50 p-2 rounded-lg border border-slate-100">
+                        These settings are applied to <strong>all {images.length} images</strong> during batch download.
+                      </p>
+                    )}
                   </div>
                   
                   {/* Dimensions */}
@@ -547,22 +556,41 @@ export default function App() {
                 {activeProcessed && !isProcessingLocal && (
                   <div className="lg:hidden bg-white p-4 rounded-xl border border-blue-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] sticky justify-between flex-row items-center gap-4 top-[72px] z-40 flex">
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-slate-800 mb-0.5 text-sm truncate">Ready to download</div>
-                      <div className="text-[11px] text-slate-500 truncate">- {getSavingsPercentage(activeImage!.size, activeProcessed.size)}% reduction</div>
+                      <div className="font-bold text-slate-800 mb-0.5 text-sm truncate">
+                        {images.length > 1 ? 'Batch ready' : 'Ready to download'}
+                      </div>
+                      <div className="text-[11px] text-slate-500 truncate">
+                        {images.length > 1 ? `${images.length} images` : `- ${getSavingsPercentage(activeImage!.size, activeProcessed.size)}% reduction`}
+                      </div>
                     </div>
                     <div className="flex gap-2">
-                       <a
-                         href={activeProcessed.url}
-                         download={activeImage ? `optimized-${activeImage.name.replace(/\.[^/.]+$/, "")}.${activeProcessed.format.split('/')[1]}` : 'image'}
-                         className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-md text-[13px] shadow whitespace-nowrap"
-                       >
-                         Download
-                       </a>
+                       {images.length > 1 ? (
+                         <button
+                           onClick={downloadAll}
+                           disabled={isBatchProcessing}
+                           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-md text-[13px] shadow whitespace-nowrap flex items-center"
+                         >
+                           {isBatchProcessing ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'ZIP'}
+                         </button>
+                       ) : (
+                         <a
+                           href={activeProcessed.url}
+                           download={activeImage ? `optimized-${activeImage.name.replace(/\.[^/.]+$/, "")}.${activeProcessed.format.split('/')[1]}` : 'image'}
+                           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-md text-[13px] shadow whitespace-nowrap"
+                         >
+                           Save
+                         </a>
+                       )}
                     </div>
                   </div>
                 )}
 
-                <div className="flex flex-col md:flex-row gap-5 flex-1 min-h-[300px] md:min-h-[500px] w-full">
+                <div className="flex flex-col md:flex-row gap-5 flex-1 min-h-[300px] md:min-h-[500px] w-full relative">
+                  {images.length > 1 && (
+                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-100 text-blue-800 text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full border border-blue-200 z-10 shadow-sm pointer-events-none whitespace-nowrap">
+                       PREVIEWING: {activeImage?.name} 
+                     </div>
+                  )}
                   {/* Original Preview Card */}
                   <div className="flex-1 bg-white border border-slate-200 rounded-xl flex flex-col overflow-hidden shadow-sm w-full md:w-1/2">
                     <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-[12px] sm:text-[13px]">
