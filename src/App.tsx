@@ -69,7 +69,10 @@ export default function App() {
             type: file.type,
           });
         };
-        img.onerror = () => resolve(null);
+        img.onerror = () => {
+          alert(`Failed to load image: ${file.name}`);
+          resolve(null);
+        };
         img.src = url;
       });
     });
@@ -220,7 +223,12 @@ export default function App() {
           return { ...prev, [activeImage.id]: processed };
         });
       } catch (err) {
-        console.error(err);
+        console.error(`Error processing active image (${activeImage.name}):`, err);
+        // We could alert here, but since it auto-processes on every slider move, it might get noisy.
+        // Alert only if it's not a generic abort.
+        if (err instanceof Error && err.message === 'Failed to load image for processing.') {
+           alert(`Failed to load: ${activeImage.name}`);
+        }
       } finally {
         setIsProcessingLocal(false);
       }
@@ -240,20 +248,25 @@ export default function App() {
 
       for (let i = 0; i < images.length; i++) {
         const img = images[i];
-        const processed = await processSingleImage(img);
-        
-        // Update local state just in case
-        setProcessedImages(prev => ({ ...prev, [img.id]: processed }));
-        
-        const response = await fetch(processed.url);
-        const blob = await response.blob();
-        
-        const ext = processed.format.split('/')[1] || 'jpeg';
-        // handle duplicate names
-        const baseName = img.name.replace(/\.[^/.]+$/, "");
-        const newName = `${baseName}-optimized.${ext}`;
-        
-        zip.file(newName, blob);
+        try {
+          const processed = await processSingleImage(img);
+          
+          // Update local state just in case
+          setProcessedImages(prev => ({ ...prev, [img.id]: processed }));
+          
+          const response = await fetch(processed.url);
+          const blob = await response.blob();
+          
+          const ext = processed.format.split('/')[1] || 'jpeg';
+          // handle duplicate names
+          const baseName = img.name.replace(/\.[^/.]+$/, "");
+          const newName = `${baseName}-optimized.${ext}`;
+          
+          zip.file(newName, blob);
+        } catch (err) {
+          console.error(`Failed to process image ${img.name}:`, err);
+          alert(`Failed to optimize: ${img.name}. Skipping.`);
+        }
         setBatchProgress(i + 1);
       }
       
