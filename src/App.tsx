@@ -313,6 +313,14 @@ export default function App() {
         canvas.height = tHeight;
         const ctx = canvas.getContext('2d');
         if (!ctx) return reject(new Error('Canvas context not supported.'));
+        
+        let filterString = '';
+        if (grayscale) filterString += 'grayscale(100%) ';
+        if (sepia) filterString += 'sepia(100%) ';
+        if (brightness !== 100) filterString += `brightness(${brightness}%) `;
+        if (contrast !== 100) filterString += `contrast(${contrast}%) `;
+        if (filterString) ctx.filter = filterString.trim();
+
         ctx.drawImage(imageObj, 0, 0, tWidth, tHeight);
         canvas.toBlob(
           (blob) => {
@@ -361,7 +369,7 @@ export default function App() {
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [activeImage, targetWidth, targetHeight, scaleMode, format, quality]);
+  }, [activeImage, targetWidth, targetHeight, scaleMode, format, quality, grayscale, sepia, brightness, contrast]);
 
   const downloadAll = async () => {
     if (images.length === 0) return;
@@ -919,6 +927,7 @@ export default function App() {
                               src={activeImage.url}
                               alt="Crop Original"
                               className="max-w-full max-h-[386px] xl:max-h-[486px] object-contain"
+                              style={{ filter: `grayscale(${grayscale ? 100 : 0}%) sepia(${sepia ? 100 : 0}%) brightness(${brightness}%) contrast(${contrast}%)` }}
                             />
                           </ReactCrop>
                         ) : (
@@ -926,6 +935,7 @@ export default function App() {
                             src={activeImage.url}
                             alt="Original"
                             className="max-w-full max-h-[400px] xl:max-h-[500px] object-contain drop-shadow-md rounded bg-white p-1 border border-slate-100"
+                            style={{ filter: `grayscale(${grayscale ? 100 : 0}%) sepia(${sepia ? 100 : 0}%) brightness(${brightness}%) contrast(${contrast}%)` }}
                           />
                         )
                       )}
