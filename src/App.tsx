@@ -548,10 +548,13 @@ export default function App() {
               <h2 className="text-3xl font-extrabold text-slate-900 mb-6 tracking-tight">About Image Resizer & Compressor</h2>
               <div className="text-slate-700 text-lg space-y-6 leading-relaxed text-left">
                 <p>
-                  We built our free image resizer with a simple philosophy: digital tools should be straightforward, fast, and respectful of user data. With the web constantly shifting towards higher-quality visual assets, optimizing file sizes can be a chore.
+                  We built our free <a href="#main-content" className="text-blue-600 hover:underline">image resizer and compressor</a> with a simple philosophy: digital tools should be straightforward, fast, and respectful of user data. With the web constantly shifting towards higher-quality visual assets, optimizing file sizes can be a chore. Using heavy desktop photography software is often overkill for simple bounding-box resizing or format conversions.
                 </p>
                 <p>
-                  Our utility uses the native Canvas API provided by modern browsers to shrink, scale, and compress images on the fly. Whether you are adjusting photography for social media, optimizing e-commerce product photos, or building lightning-fast websites, this tool gives you professional results for zero cost.
+                  Our utility uses the native Canvas API provided by modern web browsers to shrink, scale, and compress images on the fly. Whether you are adjusting photography for social media, optimizing e-commerce product photos, or building lightning-fast <a href="#features" className="text-blue-600 hover:underline">mobile-friendly</a> websites, this tool gives you professional results for zero cost.
+                </p>
+                <p>
+                  Furthermore, because page loading speed is a critical ranking factor for search engines, mastering image optimization is vital for Search Engine Optimization (SEO). Formats like WebP offer superior compression characteristics without visible degradation in quality, helping you ace your Core Web Vitals assessments. You can learn more about how this process works in our <a href="#how-it-works" className="text-blue-600 hover:underline">step-by-step guide</a> above.
                 </p>
               </div>
             </div>
@@ -602,7 +605,7 @@ export default function App() {
             </div>
 
             <div>
-              <h4 className="text-white font-bold mb-4 tracking-wide uppercase text-sm">Contact Us</h4>
+              <h4 className="text-white font-bold mb-4 tracking-wide uppercase text-sm">Contact Us &amp; Social</h4>
               <address className="not-italic text-slate-400 text-sm space-y-3">
                 <p className="flex items-center gap-2">
                   <span className="font-bold text-slate-300 min-w-[60px]">Email:</span>
@@ -612,7 +615,11 @@ export default function App() {
                   <span className="font-bold text-slate-300 min-w-[60px]">Phone:</span>
                   <a href="tel:+18001234567" className="hover:text-white transition-colors block">+1 (800) 123-4567</a>
                 </p>
-                <p className="flex items-start gap-2 pt-1">
+                <p className="flex items-center gap-2">
+                  <span className="font-bold text-slate-300 min-w-[60px]">Social:</span>
+                  <a href="https://www.instagram.com/nitingaming947?igsh=enl6ZnFoMG0ydDJs" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block text-blue-400 underline decoration-blue-400/30 underline-offset-2">Instagram</a>
+                </p>
+                <p className="flex items-start gap-2 pt-1 border-t border-slate-800 mt-3">
                   <span className="font-bold text-slate-300 min-w-[60px] pt-1">Address:</span>
                   <span className="leading-relaxed">123 Optimization Way,<br />San Francisco, CA 94105</span>
                 </p>
