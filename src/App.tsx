@@ -1468,8 +1468,6 @@ export default function App() {
               <ul className="space-y-3">
                 <li><a href="#about" className="text-slate-400 hover:text-white transition-colors text-sm">About Us</a></li>
                 <li><a href="#how-it-works" className="text-slate-400 hover:text-white transition-colors text-sm">How it Works</a></li>
-                <li><a href="/privacy" className="text-slate-400 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
-                <li><a href="/terms" className="text-slate-400 hover:text-white transition-colors text-sm">Terms of Service</a></li>
               </ul>
             </nav>
 
