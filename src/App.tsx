@@ -37,6 +37,8 @@ export default function App() {
   
   const [isProcessingLocal, setIsProcessingLocal] = useState<boolean>(false);
   const [isBatchProcessing, setIsBatchProcessing] = useState<boolean>(false);
+  const [batchProgress, setBatchProgress] = useState<number>(0);
+  const [batchTotal, setBatchTotal] = useState<number>(0);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
   const activeImage = images.find(img => img.id === activeId) || null;
@@ -47,7 +49,7 @@ export default function App() {
       images.forEach(img => URL.revokeObjectURL(img.url));
       Object.values(processedImages).forEach(img => URL.revokeObjectURL(img.url));
     };
-  }, []);
+  }, [images, processedImages]);
 
   const handleFiles = (files: FileList | File[]) => {
     const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
@@ -234,6 +236,8 @@ export default function App() {
   const downloadAll = async () => {
     if (images.length === 0) return;
     setIsBatchProcessing(true);
+    setBatchProgress(0);
+    setBatchTotal(images.length);
     
     try {
       const zip = new JSZip();
@@ -254,6 +258,7 @@ export default function App() {
         const newName = `${baseName}-optimized.${ext}`;
         
         zip.file(newName, blob);
+        setBatchProgress(i + 1);
       }
       
       const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -264,6 +269,8 @@ export default function App() {
       alert('Failed to batch process images.');
     } finally {
       setIsBatchProcessing(false);
+      setBatchProgress(0);
+      setBatchTotal(0);
     }
   };
 
@@ -403,6 +410,52 @@ export default function App() {
                         These settings are applied to <strong>all {images.length} images</strong> during batch download.
                       </p>
                     )}
+                  </div>
+                  
+                  {/* Presets */}
+                  <div className="mb-6 w-full">
+                    <div className="text-[12px] uppercase tracking-[0.08em] text-slate-500 font-bold mb-3">Optimization Profiles</div>
+                    <div className="grid grid-cols-1 gap-2 w-full">
+                      <button
+                        onClick={() => {
+                          setTargetWidth('');
+                          setTargetHeight('');
+                          setScaleMode('original');
+                          setFormat('image/webp');
+                          setQuality(0.6);
+                        }}
+                        className="flex flex-col items-start p-2.5 rounded-lg border border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50 transition-colors text-left w-full"
+                      >
+                        <span className="text-[13px] font-bold text-slate-800">Web - Smallest</span>
+                        <span className="text-[11px] text-slate-500">WebP format, 60% compression</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setTargetWidth('');
+                          setTargetHeight('');
+                          setScaleMode('original');
+                          setFormat('image/webp');
+                          setQuality(0.85);
+                        }}
+                        className="flex flex-col items-start p-2.5 rounded-lg border border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50 transition-colors text-left w-full"
+                      >
+                        <span className="text-[13px] font-bold text-slate-800">Web - Balanced</span>
+                        <span className="text-[11px] text-slate-500">WebP format, 85% compression</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setTargetWidth('');
+                          setTargetHeight('');
+                          setScaleMode('original');
+                          setFormat('image/jpeg');
+                          setQuality(1.0);
+                        }}
+                        className="flex flex-col items-start p-2.5 rounded-lg border border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50 transition-colors text-left w-full"
+                      >
+                        <span className="text-[13px] font-bold text-slate-800">Print - Quality</span>
+                        <span className="text-[11px] text-slate-500">JPEG format, 100% quality</span>
+                      </button>
+                    </div>
                   </div>
                   
                   {/* Dimensions */}
@@ -568,9 +621,15 @@ export default function App() {
                          <button
                            onClick={downloadAll}
                            disabled={isBatchProcessing}
-                           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-md text-[13px] shadow whitespace-nowrap flex items-center"
+                           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-md text-[13px] shadow whitespace-nowrap flex items-center relative overflow-hidden"
                          >
-                           {isBatchProcessing ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'ZIP'}
+                           {isBatchProcessing ? (
+                             <>
+                               <div className="absolute inset-0 bg-blue-400 opacity-20" style={{ width: `${(batchProgress / batchTotal) * 100}%`, transition: 'width 0.3s' }}></div>
+                               <RefreshCw className="w-4 h-4 animate-spin relative z-10 mr-1.5" /> 
+                               <span className="relative z-10">{batchProgress}/{batchTotal}</span>
+                             </>
+                           ) : 'ZIP'}
                          </button>
                        ) : (
                          <a
@@ -672,14 +731,18 @@ export default function App() {
                         <button
                           onClick={downloadAll}
                           disabled={isBatchProcessing}
-                          className={`font-bold py-3 px-8 rounded-lg shadow-md flex items-center justify-center whitespace-nowrap transition-all hover:-translate-y-0.5 ${
+                          className={`font-bold py-3 px-8 rounded-lg shadow-md flex items-center justify-center whitespace-nowrap transition-all hover:-translate-y-0.5 relative overflow-hidden ${
                             isBatchProcessing 
-                            ? 'bg-blue-400 text-white cursor-not-allowed' 
+                            ? 'bg-blue-100 text-blue-800 cursor-not-allowed' 
                             : 'bg-blue-600 hover:bg-blue-700 text-white'
                           }`}
                         >
                           {isBatchProcessing ? (
-                            <><RefreshCw className="w-5 h-5 mr-2 animate-spin" /> Compressing...</>
+                            <>
+                              <div className="absolute inset-0 bg-blue-300 opacity-20" style={{ width: `${(batchProgress / batchTotal) * 100}%`, transition: 'width 0.3s ease-in-out' }}></div>
+                              <RefreshCw className="w-5 h-5 mr-2 animate-spin relative z-10" /> 
+                              <span className="relative z-10">Compressing {batchProgress}/{batchTotal}</span>
+                            </>
                           ) : (
                             <><Layers className="w-5 h-5 mr-2" /> Download All (ZIP)</>
                           )}
