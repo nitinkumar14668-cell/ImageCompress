@@ -1484,7 +1484,7 @@ export default function App() {
                 </p>
                 <p className="flex items-center gap-2">
                   <span className="font-bold text-slate-300 min-w-[60px]">Phone:</span>
-                  <a href="tel:9458049121" className="hover:text-white transition-colors block">9458049121</a>
+                  <a href="tel:+919458049121" className="hover:text-white transition-colors block">+91 9458049121</a>
                 </p>
                 <p className="flex items-center gap-2">
                   <span className="font-bold text-slate-300 min-w-[60px]">Social:</span>
@@ -1492,7 +1492,7 @@ export default function App() {
                 </p>
                 <p className="flex items-start gap-2 pt-1 border-t border-slate-800 mt-3">
                   <span className="font-bold text-slate-300 min-w-[60px] pt-1">Address:</span>
-                  <span className="leading-relaxed">123 Optimization Way,<br />San Francisco, CA 94105</span>
+                  <span className="leading-relaxed">kachiyan, narora, bulandshahr, Uttar Pradesh</span>
                 </p>
               </address>
             </div>
