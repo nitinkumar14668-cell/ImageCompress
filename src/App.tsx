@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, ChangeEvent, DragEvent } from 'react';
-import { UploadCloud, Image as ImageIcon, Download, Settings2, RefreshCw, X, Layers, Undo2, Redo2, Crop as CropIcon, Check } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, Download, Settings2, RefreshCw, X, Layers, Undo2, Redo2, Crop as CropIcon, Check, Wand2, Palette } from 'lucide-react';
 import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import JSZip from 'jszip';
@@ -90,6 +90,14 @@ export default function App() {
       return [...p, currentState];
     });
     setFutureSettings([]);
+  };
+
+  const autoEnhanceAllImages = () => {
+    saveSettingsHistory();
+    setBrightness(110);
+    setContrast(115);
+    setGrayscale(false);
+    setSepia(false);
   };
 
   const undoSettings = () => {
@@ -789,7 +797,15 @@ export default function App() {
 
                   {/* Effects */}
                   <div className="mt-6 mb-2 w-full">
-                    <div className="text-[12px] uppercase tracking-[0.08em] text-slate-500 font-bold mb-3">Image Effects</div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-[12px] uppercase tracking-[0.08em] text-slate-500 font-bold">Image Effects</div>
+                      <button 
+                        onClick={autoEnhanceAllImages}
+                        className="flex items-center gap-1.5 px-2 py-1 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded text-[11px] font-bold border border-purple-200 transition-colors"
+                      >
+                        <Wand2 className="w-3 h-3" /> Auto Enhance
+                      </button>
+                    </div>
                     
                     <div className="grid grid-cols-2 gap-2 mb-4">
                       <label className="flex items-center gap-2 cursor-pointer bg-slate-50 p-2 rounded-md border border-slate-100 hover:bg-slate-100 transition-colors">
@@ -888,7 +904,12 @@ export default function App() {
                           onClick={() => setActiveId(img.id)}
                           className={`flex-shrink-0 relative w-16 h-16 rounded-xl overflow-hidden cursor-pointer transition-all snap-start shadow-sm border-2 ${activeId === img.id ? 'border-blue-500 ring-4 ring-blue-50 scale-105' : 'border-transparent hover:scale-105'}`}
                         >
-                          <img src={img.url} alt={img.name} className="w-full h-full object-cover bg-slate-100" />
+                          <img 
+                            src={img.url} 
+                            alt={img.name} 
+                            className="w-full h-full object-cover bg-slate-100" 
+                            style={{ filter: `grayscale(${grayscale ? 100 : 0}%) sepia(${sepia ? 100 : 0}%) brightness(${brightness}%) contrast(${contrast}%)` }}
+                          />
                           <button 
                             onClick={(e) => removeImage(img.id, e)}
                             className="absolute top-1 right-1 bg-slate-900/50 hover:bg-red-500 text-white p-0.5 rounded-full opacity-0 hover:opacity-100 transition-opacity"
@@ -945,9 +966,19 @@ export default function App() {
                      </div>
                   )}
 
-                  <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-white/90 backdrop-blur border border-slate-200 p-1 rounded-lg flex items-center shadow-lg pointer-events-auto">
-                      <button onClick={() => setViewMode('split')} className={`px-3 py-1.5 text-[11px] font-bold rounded-md transition-all ${viewMode === 'split' ? 'bg-blue-600 shadow-sm text-white' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'}`}>Side-by-Side</button>
-                      <button onClick={() => setViewMode('slider')} className={`px-3 py-1.5 text-[11px] font-bold rounded-md transition-all ${viewMode === 'slider' ? 'bg-blue-600 shadow-sm text-white' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'}`}>Compare Slider</button>
+                  <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 pointer-events-auto">
+                    <div className="bg-white/90 backdrop-blur border border-slate-200 p-1 rounded-lg flex items-center shadow-lg">
+                        <button onClick={() => setViewMode('split')} className={`px-3 py-1.5 text-[11px] font-bold rounded-md transition-all ${viewMode === 'split' ? 'bg-blue-600 shadow-sm text-white' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'}`}>Side-by-Side</button>
+                        <button onClick={() => setViewMode('slider')} className={`px-3 py-1.5 text-[11px] font-bold rounded-md transition-all ${viewMode === 'slider' ? 'bg-blue-600 shadow-sm text-white' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'}`}>Compare Slider</button>
+                    </div>
+                    <button 
+                      onClick={autoEnhanceAllImages} 
+                      className="bg-purple-600/90 hover:bg-purple-700 backdrop-blur border border-purple-400 text-white p-2 rounded-lg shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 group"
+                      title="Auto Enhance Image"
+                    >
+                      <Wand2 className="w-4 h-4 group-hover:animate-pulse" />
+                      <span className="sr-only">Auto Enhance</span>
+                    </button>
                   </div>
 
                   {viewMode === 'split' ? (
