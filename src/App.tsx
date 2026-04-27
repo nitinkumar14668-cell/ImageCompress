@@ -159,7 +159,7 @@ export default function App() {
     }
 
     const promises = validFiles.map((file) => {
-      return new Promise<ImageMeta | null>((resolve) => {
+      return new Promise<ImageMeta | { error: string }>((resolve) => {
         const url = URL.createObjectURL(file);
         const img = new Image();
         img.onload = () => {
@@ -174,15 +174,20 @@ export default function App() {
           });
         };
         img.onerror = () => {
-          alert(`Failed to load image: ${file.name}`);
-          resolve(null);
+          resolve({ error: file.name });
         };
         img.src = url;
       });
     });
 
     Promise.all(promises).then((results) => {
-      const validImages = results.filter(Boolean) as ImageMeta[];
+      const validImages = results.filter(r => r && !('error' in r)) as ImageMeta[];
+      const failedImages = results.filter(r => r && 'error' in r).map(r => (r as { error: string }).error);
+      
+      if (failedImages.length > 0) {
+        alert(`Failed to load the following images:\n${failedImages.join('\n')}`);
+      }
+
       if (validImages.length > 0) {
         setImages((prev) => {
           const newImages = [...prev, ...validImages];
@@ -308,7 +313,7 @@ export default function App() {
           quality
         );
       };
-      imageObj.onerror = () => reject(new Error('Failed to load image for processing.'));
+      imageObj.onerror = () => reject(new Error(`Failed to load image '${img.name}' for processing.`));
       imageObj.src = img.url;
     });
   };
@@ -330,8 +335,8 @@ export default function App() {
         console.error(`Error processing active image (${activeImage.name}):`, err);
         // We could alert here, but since it auto-processes on every slider move, it might get noisy.
         // Alert only if it's not a generic abort.
-        if (err instanceof Error && err.message === 'Failed to load image for processing.') {
-           alert(`Failed to load: ${activeImage.name}`);
+        if (err instanceof Error && err.message.includes('Failed to load image')) {
+           alert(err.message);
         }
       } finally {
         setIsProcessingLocal(false);
@@ -347,6 +352,8 @@ export default function App() {
     setBatchProgress(0);
     setBatchTotal(images.length);
     
+    const failedImages: string[] = [];
+
     try {
       const zip = new JSZip();
 
@@ -369,7 +376,7 @@ export default function App() {
           zip.file(newName, blob);
         } catch (err) {
           console.error(`Failed to process image ${img.name}:`, err);
-          alert(`Failed to optimize: ${img.name}. Skipping.`);
+          failedImages.push(img.name);
         }
         setBatchProgress(i + 1);
       }
@@ -377,6 +384,10 @@ export default function App() {
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       saveAs(zipBlob, 'optimized-images.zip');
       
+      if (failedImages.length > 0) {
+        alert(`Finished batch process, but failed to optimize the following:\n${failedImages.join('\n')}`);
+      }
+
     } catch (err) {
       console.error(err);
       alert('Failed to batch process images.');
