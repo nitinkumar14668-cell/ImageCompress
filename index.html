@@ -10,6 +10,12 @@
     <link rel="canonical" href="https://imageresizer-puce.vercel.app/" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖼️</text></svg>" />
     
+    <!-- Cache & Performance Optimization -->
+    <meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable" />
+    <link rel="preload" as="image" href="https://imageresizer-puce.vercel.app/og-image.jpg" fetchpriority="high" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://imageresizer-puce.vercel.app/" />
@@ -134,7 +140,7 @@
             <li><a href="#contact-section">Contact</a></li>
           </ul>
         </nav>
-        <div id="contact-fallback" style="margin-top: 1rem;">
+        <div id="contact-section" style="margin-top: 1rem;">
           <h3>Contact Us & Social</h3>
           <address style="font-style: normal; line-height: 1.6;">
             <p><strong>Email:</strong> <a href="mailto:nitinkumar14668@gmail.com">nitinkumar14668@gmail.com</a></p>
@@ -147,22 +153,8 @@
       </footer>
     </div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- Placeholder Analytics Tracker (Loaded deferred) -->
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        setTimeout(function() {
-          var script = document.createElement('script');
-          script.async = true;
-          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-TRACKING-PLACEHOLDER';
-          document.head.appendChild(script);
-
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-TRACKING-PLACEHOLDER');
-        }, 100);
-      });
-    </script>
+    <!-- Optimized Analytics Tracker -->
+    <script async defer>document.addEventListener("DOMContentLoaded",()=>setTimeout(()=>{const e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-TRACKING-PLACEHOLDER",document.head.appendChild(e),window.dataLayer=window.dataLayer||[];const t=function(){window.dataLayer.push(arguments)};t("js",new Date),t("config","G-TRACKING-PLACEHOLDER")},100));</script>
   </body>
 </html>
 
