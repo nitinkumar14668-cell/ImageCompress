@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, ChangeEvent, DragEvent } from 'react';
-import { UploadCloud, Image as ImageIcon, Download, Settings2, RefreshCw, X, Layers, Undo2, Redo2 } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, Download, Settings2, RefreshCw, X, Layers, Undo2, Redo2, Crop as CropIcon, Check } from 'lucide-react';
+import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
@@ -43,6 +45,11 @@ export default function App() {
   const [batchProgress, setBatchProgress] = useState<number>(0);
   const [batchTotal, setBatchTotal] = useState<number>(0);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  const [isCropping, setIsCropping] = useState<boolean>(false);
+  const [crop, setCrop] = useState<Crop>();
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const cropImgRef = useRef<HTMLImageElement>(null);
 
   const activeImage = images.find(img => img.id === activeId) || null;
 
@@ -93,6 +100,51 @@ export default function App() {
     setFormat(next.format as any);
     setQuality(next.quality);
     setKeepAspectRatio(next.keepAspectRatio);
+  };
+
+  const applyCrop = () => {
+    if (!completedCrop || !cropImgRef.current || !activeImage) return;
+
+    const scaleX = cropImgRef.current.naturalWidth / cropImgRef.current.width;
+    const scaleY = cropImgRef.current.naturalHeight / cropImgRef.current.height;
+
+    const offscreen = document.createElement('canvas');
+    offscreen.width = completedCrop.width * scaleX;
+    offscreen.height = completedCrop.height * scaleY;
+    const ctx = offscreen.getContext('2d');
+    if (!ctx) return;
+
+    ctx.drawImage(
+      cropImgRef.current,
+      completedCrop.x * scaleX,
+      completedCrop.y * scaleY,
+      completedCrop.width * scaleX,
+      completedCrop.height * scaleY,
+      0,
+      0,
+      offscreen.width,
+      offscreen.height
+    );
+
+    offscreen.toBlob((blob) => {
+      if (!blob) return;
+      const newUrl = URL.createObjectURL(blob);
+      setImages(prev => prev.map(img => {
+        if (img.id === activeImage.id) {
+          return {
+            ...img,
+            url: newUrl,
+            width: offscreen.width,
+            height: offscreen.height,
+            size: blob.size,
+          };
+        }
+        return img;
+      }));
+      setCrop(undefined);
+      setCompletedCrop(undefined);
+      setIsCropping(false);
+    }, activeImage.type);
   };
 
   // Cleanup object URLs for removed images
@@ -726,7 +778,24 @@ export default function App() {
                   <div className="flex-1 bg-white border border-slate-200 rounded-xl flex flex-col overflow-hidden shadow-sm w-full md:w-1/2">
                     <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-[12px] sm:text-[13px]">
                       <span className="font-bold text-slate-700 truncate min-w-0" title={activeImage?.name}>Original: {activeImage?.name}</span>
-                      <span className="text-slate-500 font-bold whitespace-nowrap ml-2 flex-shrink-0">{activeImage && formatBytes(activeImage.size)}</span>
+                      <div className="flex items-center gap-2">
+                        {activeImage && !isCropping && (
+                          <button onClick={() => setIsCropping(true)} className="flex items-center gap-1 text-slate-600 hover:text-blue-600 font-bold bg-white border border-slate-200 hover:border-blue-300 px-2 py-1 rounded shadow-sm transition-colors text-[11px]">
+                            <CropIcon className="w-3 h-3"/> Crop
+                          </button>
+                        )}
+                        {isCropping && (
+                          <div className="flex items-center gap-1">
+                            <button onClick={applyCrop} className="flex items-center gap-1 text-white hover:bg-green-700 font-bold bg-green-600 px-2 py-1 rounded shadow-sm transition-colors text-[11px]">
+                              <Check className="w-3 h-3"/> Apply
+                            </button>
+                            <button onClick={() => setIsCropping(false)} className="flex items-center gap-1 text-slate-600 hover:text-slate-800 font-bold bg-white border border-slate-200 hover:border-slate-300 px-2 py-1 rounded shadow-sm transition-colors text-[11px]">
+                              <X className="w-3 h-3"/> Cancel
+                            </button>
+                          </div>
+                        )}
+                        <span className="text-slate-500 font-bold whitespace-nowrap ml-1 flex-shrink-0">{activeImage && formatBytes(activeImage.size)}</span>
+                      </div>
                     </div>
                     <div className="flex-1 flex items-center justify-center p-2 sm:p-4 min-h-[250px]" style={{
                       backgroundImage: 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)',
@@ -734,11 +803,27 @@ export default function App() {
                       backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
                     }}>
                       {activeImage && (
-                        <img
-                          src={activeImage.url}
-                          alt="Original"
-                          className="max-w-full max-h-[400px] xl:max-h-[500px] object-contain drop-shadow-md rounded bg-white p-1 border border-slate-100"
-                        />
+                        isCropping ? (
+                          <ReactCrop
+                            crop={crop}
+                            onChange={(c) => setCrop(c)}
+                            onComplete={(c) => setCompletedCrop(c)}
+                            className="max-w-full outline-none bg-white p-1 border border-slate-100 rounded drop-shadow-md flex items-center justify-center max-h-[400px] xl:max-h-[500px]"
+                          >
+                            <img
+                              ref={cropImgRef}
+                              src={activeImage.url}
+                              alt="Crop Original"
+                              className="max-w-full max-h-[386px] xl:max-h-[486px] object-contain"
+                            />
+                          </ReactCrop>
+                        ) : (
+                          <img
+                            src={activeImage.url}
+                            alt="Original"
+                            className="max-w-full max-h-[400px] xl:max-h-[500px] object-contain drop-shadow-md rounded bg-white p-1 border border-slate-100"
+                          />
+                        )
                       )}
                     </div>
                   </div>
