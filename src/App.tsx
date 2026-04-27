@@ -49,6 +49,9 @@ export default function App() {
 
   const [viewMode, setViewMode] = useState<'split' | 'slider'>('split');
   const [sliderPosition, setSliderPosition] = useState<number>(50);
+  const overlayImageRef = useRef<HTMLImageElement>(null);
+  const sliderHandleRef = useRef<HTMLDivElement>(null);
+  const isSliderDraggingRef = useRef<boolean>(false);
   const [isSliderDragging, setIsSliderDragging] = useState<boolean>(false);
   const sliderContainerRef = useRef<HTMLDivElement>(null);
   const [isProcessingLocal, setIsProcessingLocal] = useState<boolean>(false);
@@ -126,28 +129,53 @@ export default function App() {
   };
 
   useEffect(() => {
-    const handleMouseUp = () => setIsSliderDragging(false);
-    const handleMove = (e: MouseEvent | TouchEvent) => {
-        if (!isSliderDragging || !sliderContainerRef.current) return;
-        const rect = sliderContainerRef.current.getBoundingClientRect();
-        const x = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
-        let pos = ((x - rect.left) / rect.width) * 100;
-        pos = Math.max(0, Math.min(100, pos));
-        setSliderPosition(pos);
+    isSliderDraggingRef.current = isSliderDragging;
+  }, [isSliderDragging]);
+
+  useEffect(() => {
+    let localPos: number | null = null;
+    const handleMouseUp = () => {
+      setIsSliderDragging(false);
+      if (localPos !== null) {
+        setSliderPosition(localPos);
+      }
     };
-    if (isSliderDragging) {
-      window.addEventListener('mousemove', handleMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      window.addEventListener('touchmove', handleMove, { passive: false });
-      window.addEventListener('touchend', handleMouseUp);
-    }
+    
+    let rafId: number | null = null;
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+        if (!isSliderDraggingRef.current || !sliderContainerRef.current) return;
+        
+        if (rafId) cancelAnimationFrame(rafId);
+        
+        rafId = requestAnimationFrame(() => {
+          const rect = sliderContainerRef.current!.getBoundingClientRect();
+          const x = 'touches' in e ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX;
+          let pos = ((x - rect.left) / rect.width) * 100;
+          pos = Math.max(0, Math.min(100, pos));
+          localPos = pos;
+          
+          if (overlayImageRef.current) {
+            overlayImageRef.current.style.clipPath = `polygon(0 0, ${pos}% 0, ${pos}% 100%, 0 100%)`;
+          }
+          if (sliderHandleRef.current) {
+            sliderHandleRef.current.style.left = `${pos}%`;
+          }
+        });
+    };
+    
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('touchmove', handleMove, { passive: false });
+    window.addEventListener('touchend', handleMouseUp);
+    
     return () => {
       window.removeEventListener('mousemove', handleMove);
       window.removeEventListener('mouseup', handleMouseUp);
       window.removeEventListener('touchmove', handleMove);
       window.removeEventListener('touchend', handleMouseUp);
+      if (rafId) cancelAnimationFrame(rafId);
     };
-  }, [isSliderDragging]);
+  }, []);
 
   const applyCrop = () => {
     if (!completedCrop || !cropImgRef.current || !activeImage) return;
@@ -486,7 +514,7 @@ export default function App() {
 
   const resetAll = () => {
     images.forEach(img => URL.revokeObjectURL(img.url));
-    Object.values(processedImages).forEach(img => URL.revokeObjectURL(img.url));
+    Object.values(processedImages).forEach((img: any) => URL.revokeObjectURL(img.url));
     setImages([]);
     setProcessedImages({});
     setActiveId(null);
@@ -1062,6 +1090,7 @@ export default function App() {
                             
                             {/* Overlay Image (Original) */}
                             <img
+                              ref={overlayImageRef}
                               src={activeImage.url}
                               alt="Original"
                               className="absolute max-w-full max-h-[500px] xl:max-h-[700px] object-contain drop-shadow-md rounded bg-white/50 p-1 border border-slate-100 pointer-events-none"
@@ -1073,6 +1102,7 @@ export default function App() {
                           
                             {/* Slider Handle */}
                             <div 
+                              ref={sliderHandleRef}
                               className="absolute top-0 bottom-0 flex flex-col items-center justify-center z-10" 
                               style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
                             >
