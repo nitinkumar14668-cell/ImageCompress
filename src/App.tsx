@@ -25,6 +25,50 @@ interface ProcessedImage {
   format: string;
 }
 
+const applySharpen = (ctx: CanvasRenderingContext2D, w: number, h: number, amount: number) => {
+  if (amount === 0) return;
+  const imageData = ctx.getImageData(0, 0, w, h);
+  const data = imageData.data;
+  const mix = amount / 100;
+  
+  const src = new Uint8ClampedArray(data);
+  const side = 3;
+  const halfSide = 1;
+  const weights = [0, -1, 0, -1, 5, -1, 0, -1, 0];
+
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const dstOff = (y * w + x) * 4;
+      let r = 0, g = 0, b = 0;
+      
+      for (let cy = 0; cy < side; cy++) {
+        for (let cx = 0; cx < side; cx++) {
+          const scy = y + cy - halfSide;
+          const scx = x + cx - halfSide;
+          if (scy >= 0 && scy < h && scx >= 0 && scx < w) {
+            const srcOff = (scy * w + scx) * 4;
+            const wt = weights[cy * side + cx];
+            r += src[srcOff] * wt;
+            g += src[srcOff + 1] * wt;
+            b += src[srcOff + 2] * wt;
+          } else {
+             const srcOff = (y * w + x) * 4;
+             const wt = weights[cy * side + cx];
+             r += src[srcOff] * wt;
+             g += src[srcOff + 1] * wt;
+             b += src[srcOff + 2] * wt;
+          }
+        }
+      }
+      
+      data[dstOff] = Math.min(255, Math.max(0, src[dstOff] + (r - src[dstOff]) * mix));
+      data[dstOff + 1] = Math.min(255, Math.max(0, src[dstOff + 1] + (g - src[dstOff + 1]) * mix));
+      data[dstOff + 2] = Math.min(255, Math.max(0, src[dstOff + 2] + (b - src[dstOff + 2]) * mix));
+    }
+  }
+  ctx.putImageData(imageData, 0, 0);
+};
+
 export default function App() {
   const [images, setImages] = useState<ImageMeta[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -43,6 +87,7 @@ export default function App() {
   const [sepia, setSepia] = useState<boolean>(false);
   const [brightness, setBrightness] = useState<number>(100);
   const [contrast, setContrast] = useState<number>(100);
+  const [sharpen, setSharpen] = useState<number>(0);
   
   const [pastSettings, setPastSettings] = useState<any[]>([]);
   const [futureSettings, setFutureSettings] = useState<any[]>([]);
@@ -68,7 +113,7 @@ export default function App() {
   const activeImage = images.find(img => img.id === activeId) || null;
 
   const saveSettingsHistory = () => {
-    const currentState = { targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio, grayscale, sepia, brightness, contrast };
+    const currentState = { targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio, grayscale, sepia, brightness, contrast, sharpen };
     setPastSettings(p => {
       if (p.length > 0) {
         const last = p[p.length - 1];
@@ -82,7 +127,8 @@ export default function App() {
           last.grayscale === currentState.grayscale &&
           last.sepia === currentState.sepia &&
           last.brightness === currentState.brightness &&
-          last.contrast === currentState.contrast
+          last.contrast === currentState.contrast &&
+          last.sharpen === currentState.sharpen
         ) {
           return p;
         }
@@ -96,6 +142,7 @@ export default function App() {
     saveSettingsHistory();
     setBrightness(110);
     setContrast(115);
+    setSharpen(30);
     setGrayscale(false);
     setSepia(false);
   };
@@ -104,7 +151,7 @@ export default function App() {
     if (pastSettings.length === 0) return;
     const previous = pastSettings[pastSettings.length - 1];
     setPastSettings(p => p.slice(0, p.length - 1));
-    setFutureSettings(f => [{ targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio, grayscale, sepia, brightness, contrast }, ...f]);
+    setFutureSettings(f => [{ targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio, grayscale, sepia, brightness, contrast, sharpen }, ...f]);
 
     setTargetWidth(previous.targetWidth);
     setTargetHeight(previous.targetHeight);
@@ -116,13 +163,14 @@ export default function App() {
     setSepia(previous.sepia);
     setBrightness(previous.brightness);
     setContrast(previous.contrast);
+    setSharpen(previous.sharpen || 0);
   };
 
   const redoSettings = () => {
     if (futureSettings.length === 0) return;
     const next = futureSettings[0];
     setFutureSettings(f => f.slice(1));
-    setPastSettings(p => [...p, { targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio, grayscale, sepia, brightness, contrast }]);
+    setPastSettings(p => [...p, { targetWidth, targetHeight, scaleMode, format, quality, keepAspectRatio, grayscale, sepia, brightness, contrast, sharpen }]);
 
     setTargetWidth(next.targetWidth);
     setTargetHeight(next.targetHeight);
@@ -134,6 +182,7 @@ export default function App() {
     setSepia(next.sepia);
     setBrightness(next.brightness);
     setContrast(next.contrast);
+    setSharpen(next.sharpen || 0);
   };
 
   useEffect(() => {
@@ -341,6 +390,14 @@ export default function App() {
     }
   };
 
+  const handleUpscale2x = () => {
+    if (!activeImage) return;
+    saveSettingsHistory();
+    setTargetWidth(activeImage.width * 2);
+    setTargetHeight(activeImage.height * 2);
+    setScaleMode('exact');
+  };
+
   const toggleAspectRatio = (checked: boolean) => {
     setKeepAspectRatio(checked);
     if (checked) {
@@ -389,6 +446,11 @@ export default function App() {
         if (filterString) ctx.filter = filterString.trim();
 
         ctx.drawImage(imageObj, 0, 0, tWidth, tHeight);
+        
+        if (sharpen > 0) {
+          applySharpen(ctx, tWidth, tHeight, sharpen);
+        }
+
         canvas.toBlob(
           (blob) => {
             if (blob) {
@@ -436,7 +498,7 @@ export default function App() {
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [activeImage, targetWidth, targetHeight, scaleMode, format, quality, grayscale, sepia, brightness, contrast]);
+  }, [activeImage, targetWidth, targetHeight, scaleMode, format, quality, grayscale, sepia, brightness, contrast, sharpen]);
 
   const downloadAll = async () => {
     if (images.length === 0) return;
@@ -696,6 +758,15 @@ export default function App() {
                   
                   {/* Dimensions */}
                   <div className="space-y-4 mb-6 w-full">
+                    <div className="flex items-center justify-between">
+                       <label className="text-[12px] uppercase tracking-[0.08em] text-slate-500 font-bold">Dimensions</label>
+                       <button 
+                         onClick={handleUpscale2x}
+                         className="flex items-center gap-1.5 px-2 py-1 bg-green-50 text-green-700 hover:bg-green-100 rounded text-[11px] font-bold border border-green-200 transition-colors"
+                       >
+                         2x Upscale
+                       </button>
+                    </div>
                     <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-4 w-full">
                       <div className="flex-1 w-full">
                         <label className="block text-[13px] font-bold text-slate-700 mb-1.5">Width (px)</label>
@@ -864,6 +935,23 @@ export default function App() {
                           className="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-full appearance-none flex cursor-pointer hover:bg-slate-300 transition-colors"
                         />
                       </div>
+                      
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-[13px] font-bold text-slate-700">Sharpen</label>
+                          <span className="text-[11px] font-medium text-slate-500">{sharpen}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="1"
+                          value={sharpen}
+                          onPointerDown={saveSettingsHistory}
+                          onChange={(e) => setSharpen(Number(e.target.value))}
+                          className="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-full appearance-none flex cursor-pointer hover:bg-slate-300 transition-colors"
+                        />
+                      </div>
                     </div>
                   </div>
                   
@@ -1024,7 +1112,6 @@ export default function App() {
                                   src={activeImage.url}
                                   alt="Crop Original"
                                   className="max-w-full max-h-[386px] xl:max-h-[486px] object-contain"
-                                  style={{ filter: `grayscale(${grayscale ? 100 : 0}%) sepia(${sepia ? 100 : 0}%) brightness(${brightness}%) contrast(${contrast}%)` }}
                                 />
                               </ReactCrop>
                             ) : (
@@ -1032,7 +1119,6 @@ export default function App() {
                                 src={activeImage.url}
                                 alt="Original"
                                 className="max-w-full max-h-[400px] xl:max-h-[500px] object-contain drop-shadow-md rounded bg-white p-1 border border-slate-100"
-                                style={{ filter: `grayscale(${grayscale ? 100 : 0}%) sepia(${sepia ? 100 : 0}%) brightness(${brightness}%) contrast(${contrast}%)` }}
                               />
                             )
                           )}
@@ -1126,7 +1212,6 @@ export default function App() {
                               alt="Original"
                               className="absolute max-w-full max-h-[500px] xl:max-h-[700px] object-contain drop-shadow-md rounded bg-white/50 p-1 border border-slate-100 pointer-events-none"
                               style={{ 
-                                filter: `grayscale(${grayscale ? 100 : 0}%) sepia(${sepia ? 100 : 0}%) brightness(${brightness}%) contrast(${contrast}%)`,
                                 clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)` 
                               }}
                             />
