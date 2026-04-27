@@ -612,7 +612,7 @@ export default function App() {
             </div>
           </div>
           
-          <nav className="hidden md:flex items-center gap-8 ml-8 flex-1">
+          <nav aria-label="Main Navigation" className="hidden md:flex items-center gap-8 ml-8 flex-1">
             <a href="#main-content" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">Home</a>
             <a href="#how-it-works" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">How it Works</a>
             <a href="#advanced-features" className="text-[14px] font-medium text-slate-600 hover:text-blue-600 transition-colors">Features</a>
@@ -1455,7 +1455,7 @@ export default function App() {
               </div>
             </div>
             
-            <div>
+            <nav aria-label="Footer Features Navigation">
               <h4 className="text-white font-bold mb-4 tracking-wide uppercase text-sm">Features</h4>
               <ul className="space-y-3">
                 <li><a href="#advanced-features" className="text-slate-400 hover:text-white transition-colors text-sm">Resize JPEG</a></li>
@@ -1463,9 +1463,9 @@ export default function App() {
                 <li><a href="#advanced-features" className="text-slate-400 hover:text-white transition-colors text-sm">Convert to WebP</a></li>
                 <li><a href="#advanced-features" className="text-slate-400 hover:text-white transition-colors text-sm">Change Aspect Ratio</a></li>
               </ul>
-            </div>
+            </nav>
 
-            <div>
+            <nav aria-label="Footer Company Navigation">
               <h4 className="text-white font-bold mb-4 tracking-wide uppercase text-sm">Company</h4>
               <ul className="space-y-3">
                 <li><a href="#about" className="text-slate-400 hover:text-white transition-colors text-sm">About Us</a></li>
@@ -1473,7 +1473,7 @@ export default function App() {
                 <li><a href="#main-content" className="text-slate-400 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
                 <li><a href="#main-content" className="text-slate-400 hover:text-white transition-colors text-sm">Terms of Service</a></li>
               </ul>
-            </div>
+            </nav>
 
             <div>
               <h4 className="text-white font-bold mb-4 tracking-wide uppercase text-sm">Contact Us &amp; Social</h4>
