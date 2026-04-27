@@ -1,10 +1,14 @@
 import express from "express";
+import compression from "compression";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
+
+  // Enable gzip compression for faster document load times
+  app.use(compression());
 
   // Set strong Cache-Control headers to optimize backend response times
   app.use((req, res, next) => {
