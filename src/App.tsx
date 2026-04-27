@@ -584,10 +584,10 @@ export default function App() {
             <div>
               <h4 className="text-white font-bold mb-4 tracking-wide uppercase text-sm">Features</h4>
               <ul className="space-y-3">
-                <li><a href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Resize JPEG</a></li>
-                <li><a href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Compress PNG</a></li>
-                <li><a href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Convert to WebP</a></li>
-                <li><a href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Change Aspect Ratio</a></li>
+                <li><a href="#features" className="text-slate-400 hover:text-white transition-colors text-sm">Resize JPEG</a></li>
+                <li><a href="#features" className="text-slate-400 hover:text-white transition-colors text-sm">Compress PNG</a></li>
+                <li><a href="#features" className="text-slate-400 hover:text-white transition-colors text-sm">Convert to WebP</a></li>
+                <li><a href="#features" className="text-slate-400 hover:text-white transition-colors text-sm">Change Aspect Ratio</a></li>
               </ul>
             </div>
 
@@ -596,8 +596,8 @@ export default function App() {
               <ul className="space-y-3">
                 <li><a href="#about" className="text-slate-400 hover:text-white transition-colors text-sm">About Us</a></li>
                 <li><a href="#how-it-works" className="text-slate-400 hover:text-white transition-colors text-sm">How it Works</a></li>
-                <li><a href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
-                <li><a href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Terms of Service</a></li>
+                <li><a href="#main-content" className="text-slate-400 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
+                <li><a href="#main-content" className="text-slate-400 hover:text-white transition-colors text-sm">Terms of Service</a></li>
               </ul>
             </div>
 
