@@ -520,7 +520,7 @@ export default function App() {
                         }}
                         className="flex flex-col items-start p-2.5 rounded-lg border border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50 transition-colors text-left w-full"
                       >
-                        <span className="text-[13px] font-bold text-slate-800">Print - Quality</span>
+                        <span className="text-[13px] font-bold text-slate-800">Print - High Quality</span>
                         <span className="text-[11px] text-slate-500">JPEG format, 100% quality</span>
                       </button>
                     </div>
