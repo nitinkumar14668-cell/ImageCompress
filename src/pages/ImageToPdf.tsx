@@ -14,7 +14,7 @@ export default function ImageToPdf() {
   }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+    const files = Array.from(e.target.files || []) as File[];
     const urls = files.map(file => URL.createObjectURL(file));
     setImages(prev => [...prev, ...urls]);
   };
