@@ -23,10 +23,8 @@ import {
   Palette,
   Info,
 } from "lucide-react";
-import dynamic from "next/dynamic";
-const ReactCrop = dynamic(() => import("react-image-crop"), { ssr: false });
+import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import type { Crop, PixelCrop } from "react-image-crop";
 
 type FileFormat = "image/jpeg" | "image/png" | "image/webp";
 

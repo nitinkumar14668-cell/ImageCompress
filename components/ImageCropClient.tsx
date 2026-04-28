@@ -2,10 +2,8 @@
 
 import React, { useState, useRef } from "react";
 import { UploadCloud, Crop as CropIcon, Download } from "lucide-react";
-import dynamic from "next/dynamic";
-const ReactCrop = dynamic(() => import("react-image-crop"), { ssr: false });
+import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import type { Crop, PixelCrop } from "react-image-crop";
 
 export default function ImageCropClient() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -131,25 +129,67 @@ export default function ImageCropClient() {
             Get the perfect framing every single time with our intuitive <strong>Image Cropping Tool</strong>. Whether you're trimming unwanted backgrounds, adjusting the aspect ratio for social media platforms like Instagram, Twitter, or LinkedIn, or highlighting the focal point of your photography, our browser-based utility gets it done fast.
           </p>
           <p className="mb-4">
-            Crop your JPG, PNG, and WebP images locally with zero loss in resolution or quality. No more resorting to heavy desktop editing suites for simple and straightforward bounding-box adjustments.
+            Crop your JPG, PNG, and WebP images locally with zero loss in resolution or quality. No more resorting to heavy desktop editing suites for simple and straightforward bounding-box adjustments. Enhance your visual content effortlessly and right within your web browser.
           </p>
         </div>
 
         <div>
-           <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 tracking-tight">
-             Why Crop Your Images With Us?
-           </h3>
-           <ul className="list-disc pl-6 space-y-3 mb-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
-             <li>
-               <strong className="text-slate-900">Pixel-Perfect Precision:</strong> Drag and drop the cropping handles onto your canvas to easily select the exact pixels you wish to retain.
-             </li>
-             <li>
-               <strong className="text-slate-900">Optimized for Web & Social:</strong> Quickly frame your pictures to conform to common aspect profiles perfectly without any stretching or visual distortion.
-             </li>
-             <li>
-               <strong className="text-slate-900">Rapid Performance:</strong> Everything runs locally on your machine, making the cropper highly responsive even with very large initial file sizes.
-             </li>
-           </ul>
+          <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 tracking-tight">
+            How to Crop an Image Online
+          </h3>
+          <ol className="list-decimal pl-6 space-y-3 mb-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+            <li>
+              <strong className="text-slate-900">Upload your photo:</strong> Click the upload area or simply drag and drop your image file (JPG, PNG, WebP) directly into the tool.
+            </li>
+            <li>
+              <strong className="text-slate-900">Adjust the crop box:</strong> Click and drag the handles on the image preview to define the exact area you want to keep. You can easily adjust the framing until it's perfect.
+            </li>
+            <li>
+              <strong className="text-slate-900">Preview and download:</strong> Once you are satisfied with your selection, click the Download button to instantly save your newly cropped image.
+            </li>
+          </ol>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          <div>
+             <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 tracking-tight">
+               Why Crop Your Images With Us?
+             </h3>
+             <ul className="list-disc pl-6 space-y-3 mb-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+               <li>
+                 <strong className="text-slate-900">Pixel-Perfect Precision:</strong> Drag and drop the cropping handles onto your canvas to easily select the exact pixels you wish to retain.
+               </li>
+               <li>
+                 <strong className="text-slate-900">Optimized for Web & Social:</strong> Quickly frame your pictures to conform to common aspect profiles perfectly without any stretching or visual distortion.
+               </li>
+               <li>
+                 <strong className="text-slate-900">Rapid Performance:</strong> Everything runs locally on your machine, making the cropper highly responsive even with very large initial file sizes.
+               </li>
+               <li>
+                 <strong className="text-slate-900">100% Privacy Secure:</strong> We value your privacy. All processing happens entirely within your web browser, ensuring your photos are never uploaded to our servers.
+               </li>
+             </ul>
+          </div>
+
+          <div>
+             <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 tracking-tight">
+               Frequently Asked Questions
+             </h3>
+             <div className="space-y-4">
+               <div>
+                  <h4 className="font-semibold text-slate-900">Does cropping reduce image quality?</h4>
+                  <p className="text-sm">Cropping simply removes the unwanted outer areas of your image. The area you keep retains its original visual fidelity and resolution, unlike resizing which alters the pixel dimensions.</p>
+               </div>
+               <div>
+                  <h4 className="font-semibold text-slate-900">What image formats are supported?</h4>
+                  <p className="text-sm">Our tool supports all standard web image formats, including JPEG (JPG), PNG, and WebP, ensuring maximum compatibility with your workflow.</p>
+               </div>
+               <div>
+                  <h4 className="font-semibold text-slate-900">Can I crop images on my phone?</h4>
+                  <p className="text-sm">Yes! Our online image cropper is fully responsive and optimized for mobile devices, allowing you to edit your photos seamlessly on the go.</p>
+               </div>
+             </div>
+          </div>
         </div>
       </section>
     </div>
