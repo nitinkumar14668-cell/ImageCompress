@@ -21,6 +21,7 @@ import {
   Check,
   Wand2,
   Palette,
+  Info,
 } from "lucide-react";
 import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
@@ -1005,19 +1006,25 @@ export default function Resizer() {
                       Target Format
                     </label>
                     <div className="flex gap-2 w-full">
-                      <button
-                        onClick={() => {
-                          saveSettingsHistory();
-                          setFormat("original");
-                        }}
-                        className={`flex-1 py-2 px-1 text-[11px] font-bold rounded-md border transition-all truncate ${
-                          format === "original"
-                            ? "bg-blue-50 border-blue-600 text-blue-700 shadow-sm"
-                            : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                        }`}
-                      >
-                        MATCH
-                      </button>
+                      <div className="relative flex-1 group">
+                        <button
+                          onClick={() => {
+                            saveSettingsHistory();
+                            setFormat("original");
+                          }}
+                          className={`w-full h-full py-2 px-1 text-[11px] font-bold rounded-md border transition-all truncate flex justify-center items-center ${
+                            format === "original"
+                              ? "bg-blue-50 border-blue-600 text-blue-700 shadow-sm"
+                              : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                          }`}
+                        >
+                          MATCH
+                        </button>
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none w-32 p-2 bg-slate-800 text-white text-[11px] font-normal leading-tight rounded-lg shadow-xl z-50 text-center">
+                          Keep original format
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+                        </div>
+                      </div>
                       {(
                         [
                           "image/jpeg",
@@ -1027,21 +1034,33 @@ export default function Resizer() {
                       ).map((f) => {
                         const lbl = f.split("/")[1].toUpperCase();
                         const isSelected = format === f;
+                        
+                        let infoTooltip = "";
+                        if (f === "image/jpeg") infoTooltip = "PROS: Small file size, best for complex photos.\n\nCONS: Lossy compression, no transparency.";
+                        if (f === "image/png") infoTooltip = "PROS: Lossless quality, supports transparency, crisp lines.\n\nCONS: Large file size for photos.";
+                        if (f === "image/webp") infoTooltip = "PROS: Smallest file size, supports transparency, great for web.\n\nCONS: Some very old browsers may not support it.";
+
                         return (
-                          <button
-                            key={f}
-                            onClick={() => {
-                              saveSettingsHistory();
-                              setFormat(f);
-                            }}
-                            className={`flex-1 py-2 px-1 text-[11px] font-bold rounded-md border transition-all truncate ${
-                              isSelected
-                                ? "bg-blue-50 border-blue-600 text-blue-700 shadow-sm"
-                                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                            }`}
-                          >
-                            {lbl}
-                          </button>
+                          <div key={f} className="relative flex-1 group">
+                            <button
+                              onClick={() => {
+                                saveSettingsHistory();
+                                setFormat(f);
+                              }}
+                              className={`w-full py-2 px-1 flex justify-center items-center gap-1 text-[11px] font-bold rounded-md border transition-all ${
+                                isSelected
+                                  ? "bg-blue-50 border-blue-600 text-blue-700 shadow-sm"
+                                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                              }`}
+                            >
+                              <span className="truncate">{lbl}</span>
+                              <Info className={`w-[14px] h-[14px] flex-shrink-0 ${isSelected ? 'text-blue-500' : 'text-slate-400 group-hover:text-slate-600'}`} />
+                            </button>
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none p-3 bg-slate-800 text-slate-100 text-[11px] font-medium whitespace-pre-wrap leading-relaxed rounded-lg shadow-xl z-50 text-left">
+                              {infoTooltip}
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+                            </div>
+                          </div>
                         );
                       })}
                     </div>
