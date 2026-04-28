@@ -30,7 +30,7 @@ export default function Navigation() {
               <ImageIcon className="w-6 h-6" />
             </div>
             <div className="font-bold text-slate-800 leading-tight">
-              <span className="text-blue-600">Image</span> Tools
+              <span className="text-blue-600">Image</span> Resizee
             </div>
           </Link>
           <div className="flex items-center overflow-x-auto hide-scrollbar space-x-1 pb-1 md:pb-0">
