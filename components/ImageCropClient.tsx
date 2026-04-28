@@ -70,7 +70,7 @@ export default function ImageCropClient() {
     <>
         {!imageSrc ? (
           <label className="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-10 flex flex-col items-center justify-center cursor-pointer bg-slate-50 hover:bg-blue-50 transition-colors w-full h-64">
-            <UploadCloud className="w-12 h-12 text-slate-400 mb-4" aria-hidden="true" />
+            <UploadCloud className="w-12 h-12 text-slate-400 mb-4" />
             <span className="font-semibold text-slate-700">Upload Image to Crop</span>
             <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
           </label>
@@ -99,7 +99,7 @@ export default function ImageCropClient() {
                 disabled={!completedCrop?.width || !completedCrop?.height}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <Download className="w-5 h-5" aria-hidden="true" />
+                <Download className="w-5 h-5" />
                 Download Cropped Image
               </button>
               

@@ -9,19 +9,19 @@ export default function Navigation() {
   const pathname = usePathname();
 
   const links = [
-    { name: "Resizer", path: "/", icon: <Layers className="w-4 h-4" aria-hidden="true" /> },
-    { name: "Image to Text", path: "/image-to-text", icon: <FileText className="w-4 h-4" aria-hidden="true" /> },
-    { name: "Image to PDF", path: "/image-to-pdf", icon: <FileDown className="w-4 h-4" aria-hidden="true" /> },
-    { name: "Image Crop", path: "/image-crop", icon: <CropIcon className="w-4 h-4" aria-hidden="true" /> },
+    { name: "Resizer", path: "/", icon: <Layers className="w-4 h-4" /> },
+    { name: "Image to Text", path: "/image-to-text", icon: <FileText className="w-4 h-4" /> },
+    { name: "Image to PDF", path: "/image-to-pdf", icon: <FileDown className="w-4 h-4" /> },
+    { name: "Image Crop", path: "/image-crop", icon: <CropIcon className="w-4 h-4" /> },
   ];
 
   return (
     <div className="bg-white border-b border-slate-200 sticky top-0 z-[100] shadow-sm">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between py-3 gap-4">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="text-blue-600 flex items-center justify-center bg-blue-50 p-2 rounded-lg" aria-hidden="true">
-              <ImageIcon className="w-6 h-6" aria-hidden="true" />
+          <Link href="/" className="flex items-center gap-3" aria-label="Home">
+            <div className="text-blue-600 flex items-center justify-center bg-blue-50 p-2 rounded-lg">
+              <ImageIcon className="w-6 h-6" />
             </div>
             <div className="font-bold text-slate-800 leading-tight">
               <span className="text-blue-600">Web</span> Tools
