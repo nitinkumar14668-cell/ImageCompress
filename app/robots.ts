@@ -5,6 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
+      disallow: ['/_next/', '/api/', '/public/'],
     },
     sitemap: 'https://imageresizee.vercel.app/sitemap.xml',
   }
