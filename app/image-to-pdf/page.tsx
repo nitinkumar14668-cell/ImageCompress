@@ -1,10 +1,5 @@
 import { Metadata } from "next";
-import dynamic from "next/dynamic";
-
-const ImageToPdfClient = dynamic(() => import("@/components/ImageToPdfClient"), {
-  ssr: false,
-  loading: () => <div className="min-h-screen flex items-center justify-center text-slate-500">Loading tools...</div>
-});
+import ImageToPdfClient from "@/components/ImageToPdfClient";
 
 export const metadata: Metadata = {
   title: "Image to PDF Converter | Convert JPG to PDF Online Free",
