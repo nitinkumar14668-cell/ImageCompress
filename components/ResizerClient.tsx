@@ -28,7 +28,6 @@ const ReactCrop = dynamic(() => import("react-image-crop"), { ssr: false });
 import "react-image-crop/dist/ReactCrop.css";
 import type { Crop, PixelCrop } from "react-image-crop";
 
-
 type FileFormat = "image/jpeg" | "image/png" | "image/webp";
 
 interface ImageMeta {

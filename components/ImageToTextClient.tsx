@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { UploadCloud, FileText, Loader2 } from "lucide-react";
 
-
 export default function ImageToTextClient() {
   const [image, setImage] = useState<string | null>(null);
   const [text, setText] = useState<string>("");

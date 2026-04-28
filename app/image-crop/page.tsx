@@ -1,5 +1,10 @@
 import { Metadata } from "next";
-import ImageCropClient from "@/components/ImageCropClient";
+import dynamic from "next/dynamic";
+
+const ImageCropClient = dynamic(() => import("@/components/ImageCropClient"), {
+  ssr: false,
+  loading: () => <div className="min-h-screen flex items-center justify-center text-slate-500">Loading tools...</div>
+});
 
 export const metadata: Metadata = {
   title: "Image Crop Tool | Free Online Photo Cropper",
