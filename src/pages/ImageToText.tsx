@@ -1,20 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { UploadCloud, FileText, Loader2 } from "lucide-react";
 import Tesseract from "tesseract.js";
-import { updateSEO } from "../utils/seo";
+import SEO from "../components/SEO";
 
 export default function ImageToText() {
   const [image, setImage] = useState<string | null>(null);
   const [text, setText] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    updateSEO(
-      "Image to Text Converter (OCR) | Extract Text from Images Free",
-      "Free online OCR tool to extract text from images securely. Convert JPG, PNG to Text instantly with our accurate Image to Text converter. Client-side, no uploads."
-    );
-  }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -47,7 +40,13 @@ export default function ImageToText() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans flex flex-col p-4 md:p-8 pt-24">
+    <>
+      <SEO 
+        title="Image to Text Converter (OCR) | Extract Text from Images Free"
+        description="Free online OCR tool to extract text from images securely. Convert JPG, PNG to Text instantly with our accurate Image to Text converter. Client-side, no uploads."
+        canonicalUrl="https://imageresizee.vercel.app/image-to-text"
+      />
+      <div className="min-h-screen bg-slate-50 font-sans flex flex-col p-4 md:p-8 pt-24">
       <div className="max-w-4xl mx-auto w-full bg-white rounded-2xl shadow-sm p-6 md:p-10 border border-slate-200">
         <h1 className="text-3xl font-extrabold text-slate-900 mb-2">Image to Text (OCR)</h1>
         <p className="text-slate-500 mb-8">Extract text from your images instantly.</p>
@@ -132,5 +131,6 @@ export default function ImageToText() {
         </div>
       </section>
     </div>
+    </>
   );
 }

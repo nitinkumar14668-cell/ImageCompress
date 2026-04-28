@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { UploadCloud, Crop as CropIcon, Download } from "lucide-react";
 import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { updateSEO } from "../utils/seo";
+import SEO from "../components/SEO";
 
 export default function ImageCrop() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -15,13 +15,6 @@ export default function ImageCrop() {
   });
   const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-
-  useEffect(() => {
-    updateSEO(
-      "Image Crop Tool | Free Online Photo Cropper",
-      "Crop your images online instantly. Free, secure, client-side photo cropper for web and social media. Adjust JPG, PNG formats with precision."
-    );
-  }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -73,7 +66,13 @@ export default function ImageCrop() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans flex flex-col p-4 md:p-8 pt-24">
+    <>
+      <SEO 
+        title="Image Crop Tool | Free Online Photo Cropper"
+        description="Crop your images online instantly. Free, secure, client-side photo cropper for web and social media. Adjust JPG, PNG formats with precision."
+        canonicalUrl="https://imageresizee.vercel.app/image-crop"
+      />
+      <div className="min-h-screen bg-slate-50 font-sans flex flex-col p-4 md:p-8 pt-24">
       <div className="max-w-4xl mx-auto w-full bg-white rounded-2xl shadow-sm p-6 md:p-10 border border-slate-200">
         <h1 className="text-3xl font-extrabold text-slate-900 mb-2">Image Crop Tool</h1>
         <p className="text-slate-500 mb-8">Quickly crop and extract parts of your images.</p>
@@ -156,5 +155,6 @@ export default function ImageCrop() {
         </div>
       </section>
     </div>
+    </>
   );
 }

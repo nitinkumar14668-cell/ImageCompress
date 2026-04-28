@@ -24,7 +24,7 @@ import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import { updateSEO } from "../utils/seo";
+import SEO from "../components/SEO";
 
 type FileFormat = "image/jpeg" | "image/png" | "image/webp";
 
@@ -109,13 +109,6 @@ const applySharpen = (
 export default function Resizer() {
   const [images, setImages] = useState<ImageMeta[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
-
-  useEffect(() => {
-    updateSEO(
-      "Free Image Resizer & Compressor | Shrink, Resize, Optimize Photos Fast",
-      "Easily compress or resize images online for free without losing quality. Optimize JPG, PNG and WebP files locally with 100% privacy safely in your browser."
-    );
-  }, []);
 
   const [processedImages, setProcessedImages] = useState<
     Record<string, ProcessedImage>
@@ -740,7 +733,13 @@ export default function Resizer() {
   const activeProcessed = activeImage ? processedImages[activeImage.id] : null;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-blue-100 selection:text-blue-900 flex flex-col whitespace-normal">
+    <>
+      <SEO 
+        title="Free Image Resizer & Compressor | Shrink, Resize, Optimize Photos Fast"
+        description="Easily compress or resize images online for free without losing quality. Optimize JPG, PNG and WebP files locally with 100% privacy safely in your browser."
+        canonicalUrl="https://imageresizee.vercel.app/"
+      />
+      <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-blue-100 selection:text-blue-900 flex flex-col whitespace-normal">
       {/* Settings Action Bar - Moved outside the header so it's still available if there are images. */}
       {images.length > 0 && (
         <div className="bg-white border-b border-slate-200 px-4 md:px-6 py-2 flex items-center justify-end sticky top-[53px] md:top-[61px] z-40 shadow-sm">
@@ -2086,5 +2085,6 @@ export default function Resizer() {
         </section>
       </div>
     </div>
+    </>
   );
 }
