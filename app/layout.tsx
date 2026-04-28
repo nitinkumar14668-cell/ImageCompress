@@ -10,6 +10,17 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://imageresizee.vercel.app'),
   title: "Free Image Resizer & Compressor | Web Tools",
   description: "Easily compress or resize images online for free without losing quality.",
+  openGraph: {
+    title: "Free Image Resizer & Compressor | Web Tools",
+    description: "Easily compress or resize images online for free without losing quality.",
+    url: 'https://imageresizee.vercel.app',
+    siteName: 'ImageResizee',
+    locale: 'en_US',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://imageresizee.vercel.app',
+  },
 };
 
 export default function RootLayout({
