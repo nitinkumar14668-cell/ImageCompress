@@ -756,6 +756,9 @@ export default function Resizer() {
         id="main-content"
         className="w-full pb-8 flex-none flex flex-col bg-slate-50"
       >
+        {images.length > 0 && (
+          <h1 className="sr-only">Free Image Resizer & Compressor</h1>
+        )}
         {images.length === 0 ? (
           <div className="w-full items-center justify-center px-4 md:px-8 py-12 md:py-20 lg:py-24 relative overflow-hidden">
             <div
