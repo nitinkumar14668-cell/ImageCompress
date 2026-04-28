@@ -1,5 +1,10 @@
 import { Metadata } from "next";
-import ResizerClient from "@/components/ResizerClient";
+import dynamic from "next/dynamic";
+
+const ResizerClient = dynamic(() => import("@/components/ResizerClient"), {
+  ssr: false,
+  loading: () => <div className="min-h-screen flex items-center justify-center text-slate-500">Loading tools...</div>
+});
 
 export const metadata: Metadata = {
   title: "Free Image Resizer & Compressor | Shrink, Resize, Optimize Photos Fast",

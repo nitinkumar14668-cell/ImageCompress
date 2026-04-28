@@ -1,5 +1,10 @@
 import { Metadata } from "next";
-import ImageToTextClient from "@/components/ImageToTextClient";
+import dynamic from "next/dynamic";
+
+const ImageToTextClient = dynamic(() => import("@/components/ImageToTextClient"), {
+  ssr: false,
+  loading: () => <div className="min-h-screen flex items-center justify-center text-slate-500">Loading tools...</div>
+});
 
 export const metadata: Metadata = {
   title: "Image to Text Converter (OCR) | Extract Text from Images Free",
