@@ -619,6 +619,7 @@ export default function Resizer() {
     }, 150);
 
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     activeImage,
     targetWidth,
