@@ -35,9 +35,16 @@ export default function RootLayout({
         <meta name="google-site-verification" content="jjtd4Eq99eqP9iKp-hCY07dUMf_HG93dv0njHwEZ6lU" />
       </head>
       <body className={inter.className} suppressHydrationWarning>
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[999] focus:p-4 focus:bg-white focus:text-blue-600">
+          Skip to main content
+        </a>
         <div className="flex flex-col min-h-screen">
-          <Navigation />
-          <div className="flex-grow">{children}</div>
+          <header>
+            <Navigation />
+          </header>
+          <main id="main-content" className="flex-grow">
+            {children}
+          </main>
           <Footer />
         </div>
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || "G-S2R20NE64Q"} />
