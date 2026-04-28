@@ -102,7 +102,7 @@ export default function ImageToTextClient() {
             Free Online Image to Text Converter (OCR)
           </h2>
           <p className="mb-4">
-            Our powerful <strong>Image to Text</strong> tool utilizes advanced Optical Character Recognition (OCR) technology to extract text from your photos seamlessly. Whether you're dealing with scanned documents, screenshots, whiteboards, or handwritten notes, our completely free browser-based utility converts images into editable digital text instantly.
+            Our powerful <strong>Image to Text</strong> tool utilizes advanced Optical Character Recognition (OCR) technology to extract text from your photos seamlessly. Whether you&apos;re dealing with scanned documents, screenshots, whiteboards, or handwritten notes, our completely free browser-based utility converts images into editable digital text instantly.
           </p>
           <p className="mb-4">
             Instead of manually typing out long paragraphs from a picture, simply upload your image (JPEG, PNG, WebP) and let our state-of-the-art OCR engine do the heavy lifting in seconds.

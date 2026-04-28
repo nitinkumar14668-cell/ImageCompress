@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://imageresizee.vercel.app'),
   title: "Free Image Resizer & Compressor | Web Tools",
   description: "Easily compress or resize images online for free without losing quality.",
 };
