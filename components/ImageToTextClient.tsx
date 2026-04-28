@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { UploadCloud, FileText, Loader2 } from "lucide-react";
-import Tesseract from "tesseract.js";
+
 
 export default function ImageToTextClient() {
   const [image, setImage] = useState<string | null>(null);
@@ -24,6 +24,7 @@ export default function ImageToTextClient() {
     setIsProcessing(true);
     setProgress(0);
     try {
+      const Tesseract = (await import("tesseract.js")).default;
       const result = await Tesseract.recognize(image, "eng", {
         logger: (m) => {
           if (m.status === "recognizing text") {

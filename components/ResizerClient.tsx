@@ -23,10 +23,11 @@ import {
   Palette,
   Info,
 } from "lucide-react";
-import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
+import dynamic from "next/dynamic";
+const ReactCrop = dynamic(() => import("react-image-crop"), { ssr: false });
 import "react-image-crop/dist/ReactCrop.css";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
+import type { Crop, PixelCrop } from "react-image-crop";
+
 
 type FileFormat = "image/jpeg" | "image/png" | "image/webp";
 
@@ -643,6 +644,8 @@ export default function Resizer() {
     const failedImages: string[] = [];
 
     try {
+      const JSZip = (await import("jszip")).default;
+      const { saveAs } = await import("file-saver");
       const zip = new JSZip();
 
       for (let i = 0; i < images.length; i++) {

@@ -2,8 +2,10 @@
 
 import React, { useState, useRef } from "react";
 import { UploadCloud, Crop as CropIcon, Download } from "lucide-react";
-import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
+import dynamic from "next/dynamic";
+const ReactCrop = dynamic(() => import("react-image-crop"), { ssr: false });
 import "react-image-crop/dist/ReactCrop.css";
+import type { Crop, PixelCrop } from "react-image-crop";
 
 export default function ImageCropClient() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);

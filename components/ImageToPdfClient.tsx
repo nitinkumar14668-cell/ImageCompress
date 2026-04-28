@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { UploadCloud, FileDown, Plus } from "lucide-react";
-import { jsPDF } from "jspdf";
+
 
 export default function ImageToPdfClient() {
   const [images, setImages] = useState<string[]>([]);
@@ -16,6 +16,7 @@ export default function ImageToPdfClient() {
   const generatePDF = async () => {
     if (images.length === 0) return;
     
+    const { jsPDF } = await import("jspdf");
     // Default to A4 format
     const doc = new jsPDF({
       orientation: "portrait",
