@@ -33,8 +33,8 @@ export default function Footer() {
             </div>
           </div>
 
-          <nav aria-label="Footer Features Navigation">
-            <h4 className="text-white font-bold mb-4 tracking-wide uppercase text-sm">
+          <nav aria-labelledby="footer-features-heading">
+            <h4 id="footer-features-heading" className="text-white font-bold mb-4 tracking-wide uppercase text-sm">
               Features
             </h4>
             <ul className="space-y-3">
@@ -61,8 +61,8 @@ export default function Footer() {
             </ul>
           </nav>
 
-          <nav aria-label="Footer Company Navigation">
-            <h4 className="text-white font-bold mb-4 tracking-wide uppercase text-sm">
+          <nav aria-labelledby="footer-company-heading">
+            <h4 id="footer-company-heading" className="text-white font-bold mb-4 tracking-wide uppercase text-sm">
               Explore
             </h4>
             <ul className="space-y-3">
