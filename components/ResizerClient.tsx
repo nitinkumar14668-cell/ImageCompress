@@ -1,3 +1,5 @@
+"use client";
+
 import React, {
   useState,
   useEffect,
@@ -24,7 +26,6 @@ import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import SEO from "../components/SEO";
 
 type FileFormat = "image/jpeg" | "image/png" | "image/webp";
 
@@ -734,11 +735,6 @@ export default function Resizer() {
 
   return (
     <>
-      <SEO 
-        title="Free Image Resizer & Compressor | Shrink, Resize, Optimize Photos Fast"
-        description="Easily compress or resize images online for free without losing quality. Optimize JPG, PNG and WebP files locally with 100% privacy safely in your browser."
-        canonicalUrl="https://imageresizee.vercel.app/"
-      />
       <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-blue-100 selection:text-blue-900 flex flex-col whitespace-normal">
       {/* Settings Action Bar - Moved outside the header so it's still available if there are images. */}
       {images.length > 0 && (

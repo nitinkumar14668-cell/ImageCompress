@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image as ImageIcon } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Footer() {
   return (
@@ -38,24 +39,24 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               <li>
-                <a href="/" className="text-slate-400 hover:text-white transition-colors text-sm">
+                <Link href="/" className="text-slate-400 hover:text-white transition-colors text-sm">
                   Image Resizer
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/image-to-text" className="text-slate-400 hover:text-white transition-colors text-sm">
+                <Link href="/image-to-text" className="text-slate-400 hover:text-white transition-colors text-sm">
                   Image to Text (OCR)
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/image-to-pdf" className="text-slate-400 hover:text-white transition-colors text-sm">
+                <Link href="/image-to-pdf" className="text-slate-400 hover:text-white transition-colors text-sm">
                   Image to PDF
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/image-crop" className="text-slate-400 hover:text-white transition-colors text-sm">
+                <Link href="/image-crop" className="text-slate-400 hover:text-white transition-colors text-sm">
                   Image Crop
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
@@ -66,14 +67,14 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               <li>
-                <a href="/#about" className="text-slate-400 hover:text-white transition-colors text-sm">
+                <Link href="/#about" className="text-slate-400 hover:text-white transition-colors text-sm">
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/#how-it-works" className="text-slate-400 hover:text-white transition-colors text-sm">
+                <Link href="/#how-it-works" className="text-slate-400 hover:text-white transition-colors text-sm">
                   How it Works
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>

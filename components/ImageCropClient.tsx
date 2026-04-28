@@ -1,10 +1,11 @@
+"use client";
+
 import React, { useState, useRef } from "react";
 import { UploadCloud, Crop as CropIcon, Download } from "lucide-react";
 import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import SEO from "../components/SEO";
 
-export default function ImageCrop() {
+export default function ImageCropClient() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState<Crop>({
     unit: "%",
@@ -67,11 +68,6 @@ export default function ImageCrop() {
 
   return (
     <>
-      <SEO 
-        title="Image Crop Tool | Free Online Photo Cropper"
-        description="Crop your images online instantly. Free, secure, client-side photo cropper for web and social media. Adjust JPG, PNG formats with precision."
-        canonicalUrl="https://imageresizee.vercel.app/image-crop"
-      />
       <div className="min-h-screen bg-slate-50 font-sans flex flex-col p-4 md:p-8 pt-24">
       <div className="max-w-4xl mx-auto w-full bg-white rounded-2xl shadow-sm p-6 md:p-10 border border-slate-200">
         <h1 className="text-3xl font-extrabold text-slate-900 mb-2">Image Crop Tool</h1>

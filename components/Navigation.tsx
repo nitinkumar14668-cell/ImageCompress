@@ -1,14 +1,12 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import Resizer from './pages/Resizer';
-import ImageToText from './pages/ImageToText';
-import ImageToPdf from './pages/ImageToPdf';
-import ImageCrop from './pages/ImageCrop';
-import Footer from './components/Footer';
-import { Layers, FileText, FileDown, Crop as CropIcon, Image as ImageIcon } from 'lucide-react';
+"use client";
 
-function Navigation() {
-  const location = useLocation();
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Layers, FileText, FileDown, Crop as CropIcon, Image as ImageIcon } from "lucide-react";
+
+export default function Navigation() {
+  const pathname = usePathname();
 
   const links = [
     { name: "Resizer", path: "/", icon: <Layers className="w-4 h-4" /> },
@@ -21,7 +19,7 @@ function Navigation() {
     <div className="bg-white border-b border-slate-200 sticky top-0 z-[100] shadow-sm">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between py-3 gap-4">
-          <Link to="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <div className="text-blue-600 flex items-center justify-center bg-blue-50 p-2 rounded-lg">
               <ImageIcon className="w-6 h-6" />
             </div>
@@ -31,11 +29,11 @@ function Navigation() {
           </Link>
           <div className="flex items-center overflow-x-auto hide-scrollbar space-x-1 pb-1 md:pb-0">
             {links.map((link) => {
-              const isActive = location.pathname === link.path;
+              const isActive = pathname === link.path;
               return (
                 <Link
                   key={link.path}
-                  to={link.path}
+                  href={link.path}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
                     isActive
                       ? "bg-blue-50 text-blue-700 border border-blue-200"
@@ -51,24 +49,5 @@ function Navigation() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function App() {
-  return (
-    <BrowserRouter>
-      <div className="flex flex-col min-h-screen">
-        <Navigation />
-        <div className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Resizer />} />
-            <Route path="/image-to-text" element={<ImageToText />} />
-            <Route path="/image-to-pdf" element={<ImageToPdf />} />
-            <Route path="/image-crop" element={<ImageCrop />} />
-          </Routes>
-        </div>
-        <Footer />
-      </div>
-    </BrowserRouter>
   );
 }

@@ -1,9 +1,10 @@
+"use client";
+
 import React, { useState } from "react";
 import { UploadCloud, FileDown, Plus } from "lucide-react";
 import { jsPDF } from "jspdf";
-import SEO from "../components/SEO";
 
-export default function ImageToPdf() {
+export default function ImageToPdfClient() {
   const [images, setImages] = useState<string[]>([]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,11 +62,6 @@ export default function ImageToPdf() {
 
   return (
     <>
-      <SEO 
-        title="Image to PDF Converter | Convert JPG to PDF Online Free"
-        description="Convert your images to a single PDF document easily. Fast, free, and secure client-side Image to PDF converter. Combine JPG, PNG into one PDF instantly."
-        canonicalUrl="https://imageresizee.vercel.app/image-to-pdf"
-      />
       <div className="min-h-screen bg-slate-50 font-sans flex flex-col p-4 md:p-8 pt-24">
       <div className="max-w-4xl mx-auto w-full bg-white rounded-2xl shadow-sm p-6 md:p-10 border border-slate-200">
         <h1 className="text-3xl font-extrabold text-slate-900 mb-2">Image to PDF</h1>
